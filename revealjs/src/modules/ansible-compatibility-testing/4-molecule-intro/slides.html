@@ -1,0 +1,64 @@
+<section>
+    <section>
+        <h2>Functional Testing</h2>
+    </section>
+    <section>
+        check whether your code is working as expected
+    </section>
+    <section>
+        <img src='images/molecule.png' height=100px></img>
+        <h2>Molecule</h2>
+    </section>
+    <section>
+        Molecule encourages consistently developed roles that are
+                <ul>
+                    <li>well-written</li>
+                    <li>easily understood</li>
+                    <li>maintained</li>
+                </ul>
+    </section>
+    <section>
+        Molecule supports testing with multiple
+                <ul>
+                    <li>instances</li>
+                    <li>operating systems and distributions</li>
+                    <li>virtualization providers</li>
+                    <li>test frameworks</li>
+                    <li>testing scenarios</li>
+                </ul>
+        </ul>
+        <aside class="notes">
+            Molecule provides support for testing with multiple instances, operating systems and distributions, virtualization providers, test frameworks and testing scenarios.
+            
+            Molecule .
+
+            With Molecule, any time you want to bring up a local environment and start running your role, you just run molecule converge. And since you can use Molecule with VirtualBox, Docker, or even AWS EC2 instances, you can have your role run inside any type of virtual environment you need! (Sometimes it can be hard to test certain types of applications or automation inside of a Docker container).
+        what is molecule - why do we care?
+        ways to use molecule (vagrant, docker, azure, aws,...)
+        </aside>
+    </section>
+    <section>
+        write simple tests with assertions in python<br>
+
+        </h2><br>
+        <div class='pre'><font color="green"># Example role</font>
+- name: create /tmp/hello-world.txt
+  copy:
+    dest: "/tmp/hello-world.txt"
+    content: "hello world"
+  tags:
+  - example
+  - example.hello-world</div>
+        <div class='pre'><font color="green"># Tests</font>
+def test_file_exists(host):
+    f = host.file('/tmp/hello-world.txt')
+    assert f.exists
+
+def test_file_content(host):
+    content = host.file('/tmp/hello-world.txt').content
+    assert b'hello world' in content</div>
+    </section>
+    <section>
+        <div class='pre'>example molecule log</div>
+    </section>
+</section>
