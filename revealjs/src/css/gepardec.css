@@ -108,7 +108,7 @@ body {
 /*ul { list-style: square url("../images/bullet.png"); list-style-position: outside; width: 100% !important; }*/
 .reveal li:before {
   content: '\2F\2F';
-  color: rgb(240,210,0);
+  color: #f0d200;
   margin-left: -30px;
   margin-right: 10px;
 } 
@@ -199,8 +199,7 @@ body {
 .reveal table th,
 .reveal table td {
   text-align: left;
-  padding: 0.2em 0.5em 0.2em 0.5em;
-  border-bottom: 1px solid; }
+  padding: 0.2em 0.5em 0.2em 0.5em; }
 
 .reveal table th[align="center"],
 .reveal table td[align="center"] {
