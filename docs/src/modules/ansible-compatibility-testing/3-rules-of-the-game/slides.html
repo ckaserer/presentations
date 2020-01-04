@@ -1,0 +1,62 @@
+
+<section>
+    <section>
+        <h2>Rules of the game</h2>
+    </section>
+    <section>
+        not all automation is created equal
+        <aside class="notes">
+            not every playbook is a good playbook
+            you have to maintain and fix issues that manifest through wider adoption in your company
+            the amount of playbooks increases and maintainability goes down
+            hardly any playbook shares code with other playbook since no generall purpose roles have been written
+            we need need to seperate our logic into roles
+        </aside>
+    </section>
+    <section>
+        <img src='src/modules/ansible-compatibility-testing/3-rules-of-the-game/images/meme.jpg' width=540px></img>  
+    </section>
+    <section>
+        write ansible roles<br>
+        <ul>
+            <li>destinct purpose</li>
+            <li>reuasable</li>
+            <li>configurable</li>
+            <li>test it</li>
+            <li>share it with the community</li>
+        </ul>
+        <aside class="notes">
+            ansible galaxy
+            Ansible is a handy configuration management tool as we have already looked here. 
+            It helps in configuring large number of the servers from one single controller instance. 
+            It helps automate complex tasks like configuration management, application deployment, creating CI/CD pipeline etc. 
+            Writing ansible code to manage the same service for multiple environments or different products increase code redundancy. 
+            With more complexity in functionality, it becomes difficult to manage everything in one ansible playbook file. 
+            Sharing code among teams become difficult. Ansible Role helps solve these problems. 
+            Ansible role is an independent component which allows reuse of common configuration steps. 
+            Ansible role has to be used within playbook. 
+            Ansible role is a set of tasks to configure a host to serve a certain purpose like configuring a service. 
+            Roles are defined using YAML files with a predefined directory structure.
+        </aside>
+    </section>
+    <section>
+        <div class="row">
+            <div class="col-7">
+                <div class="pre"><font color="#177317"># folder structure</font>
+example-role/
+└── tasks/
+    └── main.yml</div>
+            </div>
+            <div class="col-1">
+                <div class='pre'><font color="#177317"># example-role main.yml</font>
+- <font color="sandyorange">name</font>: <font color="2D5DC4">create /tmp/hello-world.txt</font>
+  <font color="sandyorange">copy</font>:
+    <font color="sandyorange">dest</font>: <font color="2D5DC4">"/tmp/hello-world.txt"</font>
+    <font color="sandyorange">content</font>: <font color="2D5DC4">"hello world"</font>
+  <font color="sandyorange">tags</font>:
+  - <font color="2D5DC4">example</font>
+  - <font color="2D5DC4">example.hello-world</font></div>
+            </div>
+        </div>
+    </section>
+</section>
