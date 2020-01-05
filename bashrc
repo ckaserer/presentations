@@ -37,6 +37,7 @@ readonly -f docker-present-ansible-compatibility-testing
 # docker-present-publish-revealjs
 function docker-present-publish-revealjs () {
   set -e
+  docker-present-build
   docker-present-ansible-compatibility-testing
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/css docs/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/js docs/"
@@ -44,7 +45,7 @@ function docker-present-publish-revealjs () {
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/images docs/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/src/css docs/src/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/src/fonts docs/src/"
-  execute "docker rm -f docker-present-ansible-compatibility-testing"
+  docker-present-stop ${presentation}
   set +e
 }
 readonly -f docker-present-publish-revealjs
@@ -54,10 +55,11 @@ readonly -f docker-present-publish-revealjs
 function docker-present-publish () {
   local presentation=${1}
   set -e
+  docker-present-build
   docker-present-${presentation}
   execute "docker cp docker-present-${presentation}:/opt/revealjs/src/modules/${presentation} docs/src/modules/"
   execute "docker cp docker-present-${presentation}:/opt/revealjs/index.html docs/${presentation}.html"
-  execute "docker rm -f docker-present-${presentation}"
+  docker-present-stop ${presentation}
   set +e
 }
 readonly -f docker-present-publish
