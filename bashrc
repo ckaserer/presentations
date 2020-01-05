@@ -12,6 +12,14 @@ function docker-present () {
 readonly -f docker-present
 [ "$?" -eq "0" ] || return $?
 
+# docker-present-stop
+function docker-present-stop () {
+  local presentation=${1}
+  execute "docker container rm -f $(docker container ls --filter "name=docker-present-${presentation}" -aq)"
+}
+readonly -f docker-present-stop
+[ "$?" -eq "0" ] || return $?
+
 # docker-present-build
 function docker-present-build () {
   execute "docker build -t gepardec/presentations ${DOCKER_PRESENT_SCRIPT_DIR}/revealjs $@"
