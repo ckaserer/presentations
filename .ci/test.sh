@@ -7,6 +7,8 @@ set -e
 docker-present-build
 
 echo 1 | docker-present
+sleep 5
+docker container ls -a
 docker-present-stop
 
 docker-present-ansible-compatibility-testing
