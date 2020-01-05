@@ -27,7 +27,7 @@ function run() {
              -p $2:$2 \
              --entrypoint="/opt/revealjs/bin/present.py" \
              --volumes-from ${HOSTNAME} \
-             --name="${1}" \
+             --name=docker-present-"${1}" \
              gepardec/presentations $1 $2
   exit 0
 }
