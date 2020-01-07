@@ -48,15 +48,72 @@
         <h2>compatibility</h2>
         <h2>testing</h2>
         <aside class="notes">
-            Who am I?
-            Why am I here?
-            What can you expect from this talk?
-            Questions at the end
+            Bevor es mit dem Vortrag losgeht möchte ich kurz ein paar Eckpunkte klarstellen. <br>
+            <ul>
+                <li>Diese Präsentation soll sowohl für Managment Sinn ergeben, als auch für Techies einen Einblick geben, daher 
+                    <ul>
+                        <li>wenig Code und dafür mehr</li>
+                        <li>Terminolgie,</li>
+                        <li>Konzepte und</li>
+                        <li>Technologie vorstellungen</li>
+                    </ul>
+                </li>
+                <li>Wenn es Fragen gibt, dann diese Bitte am Ender bzw. auch gerne nach der Präsentation direkt auf mich zukommen.</li>
+            </ul>
+            <br>
+            We at gepardec, are building and maintaining test driven automation workflows to speed up bottlenecks for our customers from development to production. That's great, right? But what if the automation workflow fails? One of our automation cornerstones is Red Hat Ansible. We maintain modules through rigorous functional testing with molecule. However, what will happen once we can no longer rely on python 2.x as our backend for ansible? Is every module that we, the community or Red Hat wrote python 3.x compatible? How can we check? Would you dare to just give it a try in your infrastructure? Of course not, we want to be aware of any breaking changes in new ansible and python 3.x releases before it causes issues in our infrastructure. Here is how we do compatibility testing.<br>
         </aside>
+    </section>
+    <section>
+        <h2>gepard who?</h2>
+        <table>
+            <tr>
+                <td  valign="top">
+                    <ul>
+                        <li>office: vienna / linz</li>
+                        <li>size: ~ 40 people</li>
+                        <li>avg age: 31</li>
+                        <li>we do what we love..
+                            <ul>
+                                <li>custom software solution</li>
+                                <li>cloud transformation</li>
+                                <li>devOps automation</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </td>
+                    <td valign="top">
+                        <img src='src/modules/ansible-compatibility-testing/1-title/images/team.jpg' width=450px></img>
+                    </td>
+            </tr>
+        </table>
+        <p class="fragment" data-fragment-index="1">..and we are extremly good at it</p>
+        <aside class="notes">
+            Wir sind eine kleine Firma bestehend aus knapp 40 Mitarbeitern in Wien und Linz.<br>
+            Wir sind auf custom software entwicklung spezialisiert mit einem zusätlichen Focus auf cloud transformation und devOps Automatisierung<br>
+            Ich bin sehr stolz darauf, sagen zu können, dass wir im Beruf das machen, was uns begeistert.<br>
+            Das macht uns zu einem ausgezeichneten Partner.
+        </aside>
+    </section>
+    <section>
+            <h2>What to expect</h2>
+            <ul>
+                <li>ansible - a short story</li>
+                <li>functional testing with molecule</li>
+                <li>compatibility testing - what's that?</li>
+                <li>compatibility testing for ansible</li>
+            </ul>
+            <aside class="notes">
+                Heute werden wir uns kurz über ansible unterhalten. Hier aber nicht von grund weg erklären, was das Produkt alles kann.<br>
+                Anschließend werden wir definieren, was funktionalen Tests sind und wie solch ein Test für ansible ausschauen könnte<br>
+                Und zum Schluss werden werden wir compatibility testing definieren und im Bezug zu ansible darüber sprechen<br>
+                Schließlich basiert vieles in ansible auf python und python 2 ist mittlerweile EOL.
+            </aside>
     </section>
 </section><section>
     <section>
         <h2>Ansible</h2>
+        a short story
     </section>
 
     <section>
@@ -64,92 +121,94 @@
         <br>
         <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/person.png' height=154px></img>
         <br>
-        automation happens when you meet a problem <br>you never want to solve again
+        automation happens when you meet a problem<br>you never want to solve again
     </section>
 
     <section>
-        you established a new tool
+        Congrats!<br>you established a new tool
     </section>
     <section>
         <table style="width:100%">
             <tr>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                    <br>
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' height=128px></img>
                 </td>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                    <br>
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' height=128px></img>
                 </td>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                    <br>
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' height=128px></img>
                 </td>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                    <br>
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' height=128px></img>
                 </td>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                    <br>
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' height=128px></img>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
                 </td>
             </tr>
             <tr>
                 <td style="text-align:center">Business</td>
                 <td style="text-align:center">Dev</td>
                 <td style="text-align:center">Network</td>
-                <td style="text-align:center">QA/Security</td>
+                <td style="text-align:center">QA/Sec</td>
                 <td style="text-align:center">Ops</td>
             </tr>
         </table>
     </section>
-</section>
-<section>
-    <section>
-        <h2>Rules of the game</h2>
-    </section>
     <section>
         not all automation is created equal
         <aside class="notes">
-            not every playbook is a good playbook
-            you have to maintain and fix issues that manifest through wider adoption in your company
-            the amount of playbooks increases and maintainability goes down
-            hardly any playbook shares code with other playbook since no generall purpose roles have been written
-            we need need to seperate our logic into roles
+            Nicht jedes selbstgeschriebene playbook ist ein gutes playbook.<br>
         </aside>
     </section>
     <section>
-        <img src='src/modules/ansible-compatibility-testing/3-rules-of-the-game/images/meme.jpg' width=540px></img>  
+        <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/meme.jpg' width=540px></img>  
+        <aside class="notes">
+            Nicht jedes selbstgeschriebene playbook ist ein gutes playbook.<br>
+            Nur weil es funktioniert, heißt es nicht, dass es wartbar oder wiederverwendbar ist<br>
+            Und je mehr neue Leute damit arbeiten desto mehr muss auf wiederverwendung und wartbarkeit geachtet werden<br>
+            Jeder hat seine playbooks geschrieben, es hat einen richtigen boost gebracht und <br>
+            plötzlich ist man nur noch damit beschäftigt die playbooks zu aktualisieren und Fehler auszumerzen<br>
+            kurz ich habe einen nicht idealen zustand (ich mache alles manuel), durch einen anderen nicht idealen zustand (ich bin der sklave der Technologie) ersetzt
+        </aside>
     </section>
     <section>
-        write ansible roles<br>
+            <h2>Rules of the game</h2>
+            <aside class="notes">
+                also müssen wir Spielregeln definieren
+            </aside>
+    </section>
+    <section>
+            write ansible roles<br>
         <ul>
             <li>destinct purpose</li>
-            <li>reusable</li>
             <li>configurable</li>
             <li>test it</li>
+            <li>reusable</li>
             <li>share it with the community</li>
         </ul>
         <aside class="notes">
-            ansible galaxy
-            Ansible is a handy configuration management tool as we have already looked here. 
-            It helps in configuring large number of the servers from one single controller instance. 
-            It helps automate complex tasks like configuration management, application deployment, creating CI/CD pipeline etc. 
-            Writing ansible code to manage the same service for multiple environments or different products increase code redundancy. 
-            With more complexity in functionality, it becomes difficult to manage everything in one ansible playbook file. 
-            Sharing code among teams become difficult. Ansible Role helps solve these problems. 
-            Ansible role is an independent component which allows reuse of common configuration steps. 
-            Ansible role has to be used within playbook. 
-            Ansible role is a set of tasks to configure a host to serve a certain purpose like configuring a service. 
-            Roles are defined using YAML files with a predefined directory structure.
         </aside>
     </section>
     <section>
+        ansible role of the day<br><br>
         <div class="row">
             <div class="col-7">
                 <div class="pre"><font color="#177317"># folder structure</font>
@@ -164,40 +223,42 @@ example-role/
     <font color="sandyorange">dest</font>: <font color="2D5DC4">"/tmp/hello-world.txt"</font>
     <font color="sandyorange">content</font>: <font color="2D5DC4">"hello world"</font>
   <font color="sandyorange">tags</font>:
-  - <font color="2D5DC4">example</font>
-  - <font color="2D5DC4">example.hello-world</font></div>
+    - <font color="2D5DC4">example</font>
+    - <font color="2D5DC4">example.hello-world</font></div>
             </div>
         </div>
     </section>
-</section>
-<section>
+</section><section>
     <section>
         <h2>Functional Testing</h2>
+        <ul>
+            <li class="fragment" fragment-index="1">check whether your code is working as expected</li>
+        </ul>
     </section>
     <section>
-        check whether your code is working as expected
-    </section>
-    <section>
-        <img src='src/modules/ansible-compatibility-testing/4-molecule-intro/images/molecule.png' height=100px></img>
+        <img src='src/modules/ansible-compatibility-testing/3-molecule-intro/images/molecule.png' height=100px></img>
         <h2>Molecule</h2>
+        <aside class="notes">
+            Developed by retr0h and is now maintained as part of Ansible by Red Hat project.
+        </aside>
     </section>
     <section>
-        Molecule encourages consistently developed roles that are<br>
-                <ul>
-                    <li>well-written</li>
-                    <li>easily understood</li>
-                    <li>maintainable</li>
-                </ul>
+        Molecule encourages consistently <br>developed roles that are<br>
+        <ul>
+            <li>well-written</li>
+            <li>easily understood</li>
+            <li>maintainable</li>
+        </ul>
     </section>
     <section>
         Molecule supports testing with multiple<br>
-                <ul>
-                    <li>instances</li>
-                    <li>operating systems and distributions</li>
-                    <li>virtualization providers</li>
-                    <li>test frameworks</li>
-                    <li>testing scenarios</li>
-                </ul>
+            <ul>
+                <li>instances</li>
+                <li>operating systems and distributions</li>
+                <li>virtualization providers</li>
+                <li>test frameworks</li>
+                <li>testing scenarios</li>
+            </ul>
         </ul>
         <aside class="notes">
             Molecule provides support for testing with multiple instances, operating systems and distributions, virtualization providers, test frameworks and testing scenarios.
@@ -205,14 +266,12 @@ example-role/
             Molecule .
 
             With Molecule, any time you want to bring up a local environment and start running your role, you just run molecule converge. And since you can use Molecule with VirtualBox, Docker, or even AWS EC2 instances, you can have your role run inside any type of virtual environment you need! (Sometimes it can be hard to test certain types of applications or automation inside of a Docker container).
-        what is molecule - why do we care?
-        ways to use molecule (vagrant, docker, azure, aws,...)
+            what is molecule - why do we care?
+            ways to use molecule (vagrant, docker, azure, aws,...)
         </aside>
     </section>
     <section>
-        write simple tests with assertions in python<br>
-
-        </h2><br>
+        simple tests with assertions in python<br><br>
         <div class='pre'><font color="#177317"># Example role</font>
 - <font color="sandyorange">name</font>: <font color="2D5DC4">create /tmp/hello-world.txt</font>
   <font color="sandyorange">copy</font>:
@@ -230,13 +289,13 @@ example-role/
     content = host.file(<font color="sandyorange">'/tmp/hello-world.txt'</font>).content
     <font color="C11FF2">assert</font> <font color="blue">b</font><font color="sandyorange">'hello world'</font> in content</div>
     </section>
-    <section>
+<!--    <section>
         <div class='pre'>$ molecule test</div>
     </section>
     <section>
-        <div class='pre'>--> Validating schema example-role/molecule/default/molecule.yml.
+        <div class='pre'>--><!-- Validating schema example-role/molecule/default/molecule.yml.
 Validation completed successfully.
---> Test matrix
+--><!-- Test matrix
     
 └── default
     ├── lint
@@ -252,8 +311,10 @@ Validation completed successfully.
     ├── verify
     ├── cleanup
     └── destroy
-...
---> Action: 'converge'
+...</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Action: 'converge'
     
     PLAY [Converge] ****************************************************************
     
@@ -267,11 +328,11 @@ Validation completed successfully.
     instance-py38-ansiblelatest-alpinelatest : ok=2    changed=1    unreachable=0 ...</div>
     </section>
     <section>
-    <div class='pre'>--> Action: 'idempotence'
+        <div class='pre'>--><!-- Action: 'idempotence'
 Idempotence completed successfully.
 ...
---> Action: 'verify'
---> Executing Testinfra tests found in /home/travis/build/ckaserer/ansible-role-example/molecule/default/tests/...
+--><!-- Action: 'verify'
+--><!-- Executing Testinfra tests found in /home/travis/build/ckaserer/...
     ============================= test session starts ==============================
     platform linux -- Python 3.8.0, pytest-5.3.0, py-1.8.0, pluggy-0.13.1
     rootdir: /home/travis/build/ckaserer/ansible-role-example/molecule/default
@@ -284,24 +345,34 @@ collected 1 item
 Verifier completed successfully.
 ...</div>
     </section>
+-->
 </section><section>
     <section>
         <h2>Compatibility Testing</h2>
-        <aside class="notes">
-                https://www.guru99.com/compatibility-testing.html
-                https://www.softwaretestinghelp.com/software-compatibility-testing/
-                https://www.testbytes.net/blog/compatibility-testing/                
-        </aside>
-    </section>
-    <section>
-        check whether your code is capable of running on different <br><br>
         <ul>
-            <li>hardware</li>
-            <li>operating systems</li>
-            <li>applications</li>
-            <li>networks</li>
-            <li><b>versions</b></li>
-            <li>...</li>
+            <li class="fragment">check whether your code is capable of running on different
+                <table style="width:100%;">
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>hardware</li>
+                                <li>operating systems</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>applications</li>
+                                <li>networks</li>
+                            </ul>
+                        </td>
+                        <td valign="top">
+                            <ul>
+                                <li>versions</li>
+                            </ul>
+                        </td>
+                    </tr>    
+                </table>
+            </li>
         </ul>
         <aside class="notes">
             <ul>
@@ -314,13 +385,16 @@ Verifier completed successfully.
                 <li><b>Mobile</b> - Checking your software is compatible with mobile platforms like Android, iOS etc.</li>
                 <li><b>Versions</b> - It is verifying your software application to be compatible with different versions of the software. For instance checking your Microsoft Word to be compatible with Windows 7, Windows 7 SP1, Windows 7 SP2, Windows 7 SP3.</li>
             </ul>
+            https://www.guru99.com/compatibility-testing.html
+            https://www.softwaretestinghelp.com/software-compatibility-testing/
+            https://www.testbytes.net/blog/compatibility-testing/                
         </aside>
     </section>
     <section>
-        <h2>Version Compatibility Testing</h2>
+        version compatibility testing<br>
         <ul>
-            <li>Backward compatibility</li>
-            <li>Forward compatibility</li>
+            <li class="fragment">backward compatibility</li>
+            <li class="fragment">forward compatibility</li>
         </ul>
         <aside class="notes">
             <ul>
@@ -331,7 +405,7 @@ Verifier completed successfully.
     </section>
 </section><section>
     <section>
-        <h2>Python 2.7 is officially End of Life...</h2>
+        <h2>Python 2 is officially End of Life...</h2>
         <aside class="notes">
                 Your Python 2 applications will keep running past Jan 1, 2020 – they won’t self destruct – but they will become less reliable and more vulnerable over time as bugs, security issues and CVEs crop up. Some things to think about:
 
@@ -349,7 +423,7 @@ Verifier completed successfully.
         <h2>How to survive</h2>
     </section>
 
-    <section data-background-image="src/modules/ansible-compatibility-testing/7-how-to-survive/images/storm-svgrepo-com.svg" data-background-size="auto 90%" data-background-opacity="0.7">
+    <section data-background-image="src/modules/ansible-compatibility-testing/6-how-to-survive/images/storm-svgrepo-com.svg" data-background-size="auto 90%" data-background-opacity="0.7">
         <font color="white">ansible + molecule + python 2.7</font>
         <br><br><br>
          <aside class="notes">We need to get from     
@@ -373,7 +447,7 @@ Verifier completed successfully.
     </section>
                         
     <section>
-        <img src="src/modules/ansible-compatibility-testing/7-how-to-survive/images/tox.png" width="200px"> <br>
+        <img src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/tox.png" width="200px"> <br>
         <ul>
             <li>virtualenv management and test command line tool</li>
             <li>vision: standardize testing in Python</li>
@@ -384,7 +458,7 @@ Verifier completed successfully.
         Survival Strategy<br><br>
         <div class="row">
             <div class="col-6">
-                <img src="src/modules/ansible-compatibility-testing/7-how-to-survive/images/architecture.png" width="247px">
+                <img src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture.png" width="247px">
             </div>
             <div class="col-6">
                 <ul>
@@ -398,7 +472,7 @@ Verifier completed successfully.
     </section>
 
     <section>
-        Why stop?<br>
+        Why stop here?<br>
         <ul>
             <li>add various ansible versions
                 <ul>
@@ -416,7 +490,7 @@ Verifier completed successfully.
     </section>
     
     <section>
-        I could not stop myself...
+        Well, I couldn't stop myself...
     </section>  
 
     <section>
@@ -461,7 +535,15 @@ Verifier completed successfully.
     </section>
 </section><section>
     <section>
-        <h2>Thank you</h2>
+        <div style="position:relative" >
+            <h2 class="fragment fade-out" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                questions?
+            </h2>
+            <h2 class="fragment fade-in" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                thank you
+            </h2>    
+        </div>
+        <br>
         <br>
         <ul>
             <li style="font-size:24px !important">slides: <a href="https://gepardec.github.io/presentations/ansible-compatibility-testing">https://gepardec.github.io/presentations/ansible-compatibility-testing</a></li>

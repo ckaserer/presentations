@@ -6,10 +6,66 @@
         <h2>compatibility</h2>
         <h2>testing</h2>
         <aside class="notes">
-            Who am I?
-            Why am I here?
-            What can you expect from this talk?
-            Questions at the end
+            Bevor es mit dem Vortrag losgeht möchte ich kurz ein paar Eckpunkte klarstellen. <br>
+            <ul>
+                <li>Diese Präsentation soll sowohl für Managment Sinn ergeben, als auch für Techies einen Einblick geben, daher 
+                    <ul>
+                        <li>wenig Code und dafür mehr</li>
+                        <li>Terminolgie,</li>
+                        <li>Konzepte und</li>
+                        <li>Technologie vorstellungen</li>
+                    </ul>
+                </li>
+                <li>Wenn es Fragen gibt, dann diese Bitte am Ender bzw. auch gerne nach der Präsentation direkt auf mich zukommen.</li>
+            </ul>
+            <br>
+            We at gepardec, are building and maintaining test driven automation workflows to speed up bottlenecks for our customers from development to production. That's great, right? But what if the automation workflow fails? One of our automation cornerstones is Red Hat Ansible. We maintain modules through rigorous functional testing with molecule. However, what will happen once we can no longer rely on python 2.x as our backend for ansible? Is every module that we, the community or Red Hat wrote python 3.x compatible? How can we check? Would you dare to just give it a try in your infrastructure? Of course not, we want to be aware of any breaking changes in new ansible and python 3.x releases before it causes issues in our infrastructure. Here is how we do compatibility testing.<br>
         </aside>
+    </section>
+    <section>
+        <h2>gepard who?</h2>
+        <table>
+            <tr>
+                <td  valign="top">
+                    <ul>
+                        <li>office: vienna / linz</li>
+                        <li>size: ~ 40 people</li>
+                        <li>avg age: 31</li>
+                        <li>we do what we love..
+                            <ul>
+                                <li>custom software solution</li>
+                                <li>cloud transformation</li>
+                                <li>devOps automation</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </td>
+                    <td valign="top">
+                        <img src='src/modules/ansible-compatibility-testing/1-title/images/team.jpg' width=450px></img>
+                    </td>
+            </tr>
+        </table>
+        <p class="fragment" data-fragment-index="1">..and we are extremly good at it</p>
+        <aside class="notes">
+            Wir sind eine kleine Firma bestehend aus knapp 40 Mitarbeitern in Wien und Linz.<br>
+            Wir sind auf custom software entwicklung spezialisiert mit einem zusätlichen Focus auf cloud transformation und devOps Automatisierung<br>
+            Ich bin sehr stolz darauf, sagen zu können, dass wir im Beruf das machen, was uns begeistert.<br>
+            Das macht uns zu einem ausgezeichneten Partner.
+        </aside>
+    </section>
+    <section>
+            <h2>What to expect</h2>
+            <ul>
+                <li>ansible - a short story</li>
+                <li>functional testing with molecule</li>
+                <li>compatibility testing - what's that?</li>
+                <li>compatibility testing for ansible</li>
+            </ul>
+            <aside class="notes">
+                Heute werden wir uns kurz über ansible unterhalten. Hier aber nicht von grund weg erklären, was das Produkt alles kann.<br>
+                Anschließend werden wir definieren, was funktionalen Tests sind und wie solch ein Test für ansible ausschauen könnte<br>
+                Und zum Schluss werden werden wir compatibility testing definieren und im Bezug zu ansible darüber sprechen<br>
+                Schließlich basiert vieles in ansible auf python und python 2 ist mittlerweile EOL.
+            </aside>
     </section>
 </section>
