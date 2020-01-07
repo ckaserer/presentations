@@ -40,9 +40,10 @@ function docker-present-publish-revealjs () {
   docker-present-build
   docker-present-ansible-compatibility-testing
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/css ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
+  execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/images ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/js ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/lib ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
-  execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/images ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
+  execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/plugin ${DOCKER_PRESENT_SCRIPT_DIR}/docs/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/src/css ${DOCKER_PRESENT_SCRIPT_DIR}/docs/src/"
   execute "docker cp docker-present-ansible-compatibility-testing:/opt/revealjs/src/fonts ${DOCKER_PRESENT_SCRIPT_DIR}/docs/src/"
   docker-present-stop ${presentation}
