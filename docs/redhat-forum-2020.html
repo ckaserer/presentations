@@ -10,8 +10,9 @@
         gtag('js', new Date());
         gtag('config', 'UA-155731101-1');
         </script>
+        
         <meta charset="utf-8">
-
+    
         <title>Gepardec</title>
 
         <meta name="description" content="Gepardec">
@@ -52,9 +53,7 @@
     <section class="title" data-background-image="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_sujet_gepard.jpg"  data-background="#000000" data-background-size="auto 100%" data-background-position="left">
         <img src="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_flecken_schwarz.png" style="width: auto; height: 440px; position: fixed; bottom: 0px; right: -110px; z-index: -9999;">
         <img class="com_logo" src="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_logo_RGB_dunklerhg.svg" alt="gepardec logo">
-        <h2>ansible</h2>
-        <h2>compatibility</h2>
-        <h2>testing</h2>
+        <h2>ansible<br>compatibility<br>testing</h2>
         <aside class="notes">
             Bevor es mit dem Vortrag losgeht möchte ich kurz ein paar Eckpunkte klarstellen. <br>
             <ul>
@@ -73,8 +72,7 @@
         </aside>
     </section>
     <section>
-        <h2>What to expect</h2>
-        <ul>
+        <h2>What to expect</h2><ul>
             <li>ansible - a short story</li>
             <li>functional testing with molecule</li>
             <li>compatibility testing - what's that?</li>
@@ -85,6 +83,27 @@
             Anschließend werden wir definieren, was funktionalen Tests sind und wie solch ein Test für ansible ausschauen könnte<br>
             Und zum Schluss werden werden wir compatibility testing definieren und im Bezug zu ansible darüber sprechen<br>
             Schließlich basiert vieles in ansible auf python und python 2 ist mittlerweile EOL.
+        </aside>
+    </section>
+    <section>
+        <h2>Press "s" for <br>additional information</h2>
+        The presentation is enriched with speaker notes <br>
+        that can be revealed right in your browser
+        <aside class="notes">
+            N, SPACE: Next slide<br>
+            P: Previous slide<br>
+            ←, H: Navigate left<br>
+            →, L: Navigate right<br>
+            ↑, K: Navigate up<br>
+            ↓, J: Navigate down<br>
+            Home: First slide<br>
+            End: Last slide<br>
+            B, .: Pause (Blackout)<br>
+            F: Fullscreen<br>
+            ESC, O: Slide overview / Escape from full-screen<br>
+            S: Speaker notes view<br>
+            ?: Show keyboard shortcuts (only works in presentation not in speaker notes view)<br>
+            alt + click: Zoom in. Repeat to zoom back out.<br>
         </aside>
     </section>
 </section><section>
@@ -105,14 +124,8 @@
         Congrats!<br>you established a new tool
     </section>
     <section>
-        <table style="width:100%">
+        <table>
             <tr>
-                <td style="text-align:center">
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                </td>
-                <td style="text-align:center">
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
-                </td>
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
                 </td>
@@ -133,18 +146,10 @@
                 <td style="text-align:center">
                     <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
                 </td>
-                <td style="text-align:center">
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
-                </td>
-                <td style="text-align:center">
-                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
-                </td>
             </tr>
             <tr>
-                <td style="text-align:center">Business</td>
                 <td style="text-align:center">Dev</td>
-                <td style="text-align:center">Network</td>
-                <td style="text-align:center">QA/Sec</td>
+                <td style="text-align:center">Sec</td>
                 <td style="text-align:center">Ops</td>
             </tr>
         </table>
@@ -184,7 +189,7 @@
         <aside class="notes">
         </aside>
     </section>
-    <section>
+<!--    <section>
         ansible role of the day<br><br>
         <div class="row">
             <div class="col-7">
@@ -205,6 +210,7 @@ example-role/
             </div>
         </div>
     </section>
+-->
 </section><section>
     <section>
         <h2>Functional Testing</h2>
@@ -384,11 +390,11 @@ Verifier completed successfully.
     <section>
         <h2>Python 2 is officially End of Life...</h2>
         <aside class="notes">
-                Your Python 2 applications will keep running past Jan 1, 2020 – they won’t self destruct – but they will become less reliable and more vulnerable over time as bugs, security issues and CVEs crop up. Some things to think about:
+            Your Python 2 applications will keep running past Jan 1, 2020 – they won’t self destruct – but they will become less reliable and more vulnerable over time as bugs, security issues and CVEs crop up. Some things to think about:
 
-                There will be no official support forthcoming for the Python 2 interpreter or the Python 2 standard libraries from the Python 2 core team. Additionally, there are no guarantees that the Python Packaging Authority (PyPA) or the Python Package Index (PyPI) will continue to support Python 2 for any length of time past the EOL date.
-                Community developers working on Python 2 and Python 3 versions of their packages will deprioritize working on their Python 2 code. In fact, many authors have indicated that all work on their popular Python 2 packages will be dropped in 2020 in favor of Python 3 development only.
-                Vendors that offer Python 2 distributions today (such as Linux vendors, Docker, cloud providers, etc) will likely phase out their support for Python 2 over time. While Python 2 offerings are unlikely to disappear from their catalog on January 1, 2020, the scope of their support may become limited over time.
+            There will be no official support forthcoming for the Python 2 interpreter or the Python 2 standard libraries from the Python 2 core team. Additionally, there are no guarantees that the Python Packaging Authority (PyPA) or the Python Package Index (PyPI) will continue to support Python 2 for any length of time past the EOL date.
+            Community developers working on Python 2 and Python 3 versions of their packages will deprioritize working on their Python 2 code. In fact, many authors have indicated that all work on their popular Python 2 packages will be dropped in 2020 in favor of Python 3 development only.
+            Vendors that offer Python 2 distributions today (such as Linux vendors, Docker, cloud providers, etc) will likely phase out their support for Python 2 over time. While Python 2 offerings are unlikely to disappear from their catalog on January 1, 2020, the scope of their support may become limited over time.
         </aside>
     </section>
 
@@ -438,31 +444,38 @@ Verifier completed successfully.
 
     <section>
         Survival Strategy<br><br>
-        <div class="row">
-            <div class="col-6">
-                <img src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture.png" width="247px">
-            </div>
-            <div class="col-6">
-                <ul>
-                    <li>automation via ansible</li>
-                    <li>functional tests via molecule</li>
-                    <li>multiple python versions via tox</li>
-                    <li>container as target environment</li>
-                </ul>
-            </div>
-        </div>
+        <table>
+            <tr>
+                <td valign="top">
+                    <div style="position:relative; width:250px;height:300px;">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-1.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-2.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="1">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-3.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="2">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-4.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="3">
+                    </div>
+                </td>
+                <td valign="top">
+                    <ul>
+                        <li class="fragment" data-fragment-index="0">automation via ansible</li>
+                        <li class="fragment" data-fragment-index="1">functional tests via molecule</li>
+                        <li class="fragment" data-fragment-index="2">multiple python versions via tox</li>
+                        <li class="fragment" data-fragment-index="3">container as target environment</li>
+                    </ul>
+                </td>
+            </tr>   
+        </table>   
     </section>
 
     <section>
         Why stop here?<br>
         <ul>
-            <li>add various ansible versions
+            <li class="fragment">add various ansible versions
                 <ul>
                     <li>can I savely update to a newer ansible version?</li>
                     <li>which ansible version do I need at the very least?</li>
                 </ul>
             </li>
-            <li>add multiple linux flavors
+            <li class="fragment">add multiple linux flavors
                 <ul>
                     <li>verify that your role can run on RHEL 7 and RHEL 8 </li>
                     <li>Debian 9 and 10, Ubuntu 16.04 and 18.04, ...</li>
@@ -478,7 +491,7 @@ Verifier completed successfully.
     <section>
         <ul>
             <li>ansible - latest, 2.9, 2.8</li>
-            <li> OS
+            <li class="fragment"> OS
                 <ul>
                     <li>alpine - latest, 3.10, 3.9, 3.8</li>
                     <li>centos - latest, 8, 7</li>
@@ -489,7 +502,7 @@ Verifier completed successfully.
                     <li>ubuntu - latest, 20.04, 19.04, 18.04, 16.04</li>
                 </ul>
             </li>
-            <li> python - 3.x, 3.6, 3.7, 3.8</li>
+            <li class="fragment"> python - 3.x, 3.8, 3.7, 3.6 </li>
         </ul>
     </section>  
     
@@ -519,7 +532,7 @@ Verifier completed successfully.
         <h2>gepard who?</h2>
     </section>
     <section>
-        <h2>That's us</h2>
+        </img><h2>That's us</h2>
         <table>
             <tr>
                 <td  valign="top">
@@ -539,6 +552,11 @@ Verifier completed successfully.
                     <td valign="top">
                         <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/team.jpg' width=450px></img>
                     </td>
+                    <td valign="top" align="center">
+                        <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/rh_premium_partner.jpg' width=150px><br>
+                        <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/jboss.svg' width=150px><br>
+                        <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/openshift.svg' width=100px>
+                    </td>
             </tr>
         </table>
         <p class="fragment" data-fragment-index="1">..and we are extremly good at it</p>
@@ -550,7 +568,7 @@ Verifier completed successfully.
         </aside>
     </section>
     <section>
-        <div style="position:relative" >
+        <div style="position:relative">
             <h2 class="fragment fade-out" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
                 questions?
             </h2>
@@ -561,11 +579,13 @@ Verifier completed successfully.
         <br>
         <br>
         <ul>
-            <li style="font-size:24px !important">slides: <a href="https://gepardec.github.io/presentations/ansible-compatibility-testing">https://gepardec.github.io/presentations/ansible-compatibility-testing</a></li>
+        <!--<li style="font-size:24px !important">slides: <a href="https://gepardec.github.io/presentations/ansible-compatibility-testing">https://gepardec.github.io/presentations/ansible-compatibility-testing</a></li>-->
+            <li style="font-size:24px !important">slides: <a href="https://gepardec.github.io/presentations/redhat-forum-2020">https://gepardec.github.io/presentations/redhat-forum-2020</a></li>
             <li style="font-size:24px !important">code: <a href="https://github.com/gepardec/ansible-role-example">https://github.com/gepardec/ansible-role-example</a></li>
-            <li style="font-size:24px !important">author: Clemens Kaserer</li>
+            <li style="font-size:24px !important">author: <a href="mailto:clemens.kaserer@gepardec.com"> Clemens Kaserer</a></li>
         </ul>
-        <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/qr.png' height=100px></img>
+        <!--<img src='src/modules/ansible-compatibility-testing/8-thank-you/images/qr-ansible-compatibility-testing.png' height=100px></img>-->
+        <img src='src/modules/ansible-compatibility-testing/8-thank-you/images/qr-redhat-forum-2020.png' height=100px></img>
     </section>
 </section>
             </div>
