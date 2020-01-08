@@ -36,6 +36,13 @@ function docker-present-ansible-compatibility-testing () {
 readonly -f docker-present-ansible-compatibility-testing
 [ "$?" -eq "0" ] || return $?
 
+# docker-present-redhat-forum-2020
+function docker-present-redhat-forum-2020 () {
+  execute "docker run -d -p 8080:8080 --entrypoint=/opt/revealjs/bin/present.py --name docker-present-redhat-forum-2020 gepardec/presentations redhat-forum-2020 8080"
+}
+readonly -f docker-present-redhat-forum-2020
+[ "$?" -eq "0" ] || return $?
+
 # docker-present-publish-revealjs
 function docker-present-publish-revealjs () {
   set -e
