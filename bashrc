@@ -3,7 +3,9 @@
 readonly FLAG_DRYRUN=false
 readonly DOCKER_PRESENT_SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-source /dev/stdin  <<< "$(curl -sSL https://raw.githubusercontent.com/ckaserer/bash-script-collection/master/functions/execute.sh)" 
+for functionFile in ${DOCKER_PRESENT_SCRIPT_DIR}/bash-script-collection/functions/*.sh; do 
+  source ${functionFile} >/dev/null
+done
 
 # docker-present
 function docker-present () {
