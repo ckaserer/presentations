@@ -55,14 +55,30 @@ readonly -f docker-present-publish-revealjs
 # docker-present-publish
 function docker-present-publish () {
   local presentation=${1}
+  local name=${2:-${1}}
   set -e
   docker-present-build
   docker-present-${presentation}
   execute "docker cp docker-present-${presentation}:/opt/revealjs/src/modules/${presentation} ${DOCKER_PRESENT_SCRIPT_DIR}/docs/src/modules/"
-  execute "docker cp docker-present-${presentation}:/opt/revealjs/index.html ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${presentation}.html"
+  execute "docker cp docker-present-${presentation}:/opt/revealjs/index.html ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${name}.html"
   docker-present-stop ${presentation}
   set +e
 }
 readonly -f docker-present-publish
+[ "$?" -eq "0" ] || return $?
+
+
+# docker-present-export
+function docker-present-export () {
+  local presentation=${1}
+  set -e
+  docker-present-build
+  docker-present-${presentation}
+  execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape --size=3840x2160 http://localhost:8080 ${presentation}.pdf"
+  execute "docker run --rm -it -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides --entrypoint bash woahbase/alpine-libreoffice:x86_64 -c 'soffice --headless --infilter=\"impress_pdf_import\" --convert-to odp --outdir /slides/ /slides/${presentation}.pdf'"
+  docker-present-stop ${presentation}
+  set +e
+}
+readonly -f docker-present-export
 [ "$?" -eq "0" ] || return $?
 
