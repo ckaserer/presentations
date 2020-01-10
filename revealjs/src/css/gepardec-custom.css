@@ -52,13 +52,10 @@ img {
 
 .com_logo {
   width: auto; 
-  height: 50px; 
-  position: absolute; 
-  top: 20px;
-  right: -90px;
-  /* for pdf */
-  /*top: -370px;
-  right: -160px; */
+  height: 32px; 
+  position: fixed; 
+  top: 00px;
+  right: -120px;
   z-index: 9999;
 }
 

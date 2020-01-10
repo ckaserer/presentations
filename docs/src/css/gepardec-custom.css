@@ -52,13 +52,12 @@ img {
 
 .com_logo {
   width: auto; 
-  height: 50px; 
+  height: 32px; 
   position: fixed; 
-  top: 20px; 
-  right: -90px; 
+  top: 00px;
+  right: -120px;
   z-index: 9999;
 }
-
 
 .green_bg { text-align: left !important; }
 .green_bg h2 { color: #FFF !important; }
