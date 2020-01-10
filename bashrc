@@ -70,6 +70,7 @@ function docker-present-publish () {
   docker-present-${presentation}
   execute "docker cp docker-present-${presentation}:/opt/revealjs/src/modules/${presentation} ${DOCKER_PRESENT_SCRIPT_DIR}/docs/src/modules/"
   execute "docker cp docker-present-${presentation}:/opt/revealjs/index.html ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${name}.html"
+  # execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape --size=3840x2160 http://localhost:8080 ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${name}.pdf"
   docker-present-stop ${presentation}
   set +e
 }
@@ -80,10 +81,12 @@ readonly -f docker-present-publish
 # docker-present-export
 function docker-present-export () {
   local presentation=${1}
+  local decktape_opts=${2}
+
   set -e
   docker-present-build
   docker-present-${presentation}
-  execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape --size=3840x2160 http://localhost:8080 ${presentation}.pdf"
+  execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape ${decktape_opts} --size=3840x2160 http://localhost:8080 ${presentation}.pdf"
   execute "docker run --rm -it -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides --entrypoint bash woahbase/alpine-libreoffice:x86_64 -c 'soffice --headless --infilter=\"impress_pdf_import\" --convert-to odp --outdir /slides/ /slides/${presentation}.pdf'"
   docker-present-stop ${presentation}
   set +e

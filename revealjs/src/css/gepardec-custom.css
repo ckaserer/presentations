@@ -53,12 +53,14 @@ img {
 .com_logo {
   width: auto; 
   height: 50px; 
-  position: fixed; 
-  top: 20px; 
-  right: -90px; 
+  position: absolute; 
+  top: 20px;
+  right: -90px;
+  /* for pdf */
+  /*top: -370px;
+  right: -160px; */
   z-index: 9999;
 }
-
 
 .green_bg { text-align: left !important; }
 .green_bg h2 { color: #FFF !important; }
