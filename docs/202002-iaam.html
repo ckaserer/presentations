@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155731101-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-155731101-1');
+        </script>
+        
+        <meta charset="utf-8">
+    
+        <title>Gepardec</title>
+
+        <meta name="description" content="Gepardec">
+        <meta name="author" content="Clemens Kaserer">
+
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+        <!-- css -->
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="src/css/gepardec.css" id="theme">
+        <link rel="stylesheet" href="src/css/gepardec-custom.css">
+        <link rel="stylesheet" href="src/css/gepardec-code.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'src/css/print/pdf.css' : 'src/css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <!--<img src="images/flecken.png" style="width: auto; height: 300px; position: fixed; bottom: 10px; right: -50px; z-index: -9999; opacity: 0.4;" alt="gepardec flecken">-->
+        <img src="images/GEPARDEC_logo_RGB_hellerhg.svg" style="width: auto; height: 50px; position: fixed; top: 30px; right: 30px; z-index: -9999;" alt="gepardec logo">
+        <p style="font-size:12px !important; z-index:10; color:rgb(0, 0, 0); position: fixed; bottom: 30px; left: calc(50% - 8em);"><i>#WECKDENGEPARDENINDIR</i></p><!--© 2019 // Gepardec IT Services GmbH-->
+		<div class="reveal">
+            <div class="slides">
+                <section>
+    <section class="title" data-background-image="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_sujet_gepard.jpg"  data-background="#000000" data-background-size="auto 100%" data-background-position="left">
+        <!--<img src="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_flecken_schwarz.png" style="width: auto; height: 440px; position: fixed; bottom: 0px; right: -110px; z-index: -9999;">-->
+        <img class="com_logo" src="src/modules/ansible-compatibility-testing/1-title/images/GEPARDEC_logo_RGB_dunklerhg.svg" alt="gepardec logo">
+        <h2>ansible<br>compatibility<br>testing</h2>
+        <aside class="notes">
+            Bevor es mit dem Vortrag losgeht möchte ich kurz ein paar Eckpunkte klarstellen. <br>
+            <ul>
+                <li>Diese Präsentation soll sowohl für Managment Sinn ergeben, als auch für Techies einen Einblick geben, daher 
+                    <ul>
+                        <li>wenig Code und dafür mehr</li>
+                        <li>Terminolgie,</li>
+                        <li>Konzepte und</li>
+                        <li>Technologie vorstellungen</li>
+                    </ul>
+                </li>
+                <li>Wenn es Fragen gibt, dann diese Bitte am Ender bzw. auch gerne nach der Präsentation direkt auf mich zukommen.</li>
+            </ul>
+            <br>
+            We at gepardec, are building and maintaining test driven automation workflows to speed up bottlenecks for our customers from development to production. That's great, right? But what if the automation workflow fails? One of our automation cornerstones is Red Hat Ansible. We maintain modules through rigorous functional testing with molecule. However, what will happen once we can no longer rely on python 2.x as our backend for ansible? Is every module that we, the community or Red Hat wrote python 3.x compatible? How can we check? Would you dare to just give it a try in your infrastructure? Of course not, we want to be aware of any breaking changes in new ansible and python 3.x releases before it causes issues in our infrastructure. Here is how we do compatibility testing.<br>
+        </aside>
+    </section>
+    <section>
+        <h2>What to expect</h2><ul>
+            <li>ansible - a short story</li>
+            <li>functional testing with molecule</li>
+            <li>compatibility testing - what's that?</li>
+            <li>compatibility testing for ansible</li>
+        </ul>
+        <aside class="notes">
+            Heute werden wir uns kurz über ansible unterhalten. Hier aber nicht von grund weg erklären, was das Produkt alles kann.<br>
+            Anschließend werden wir definieren, was funktionalen Tests sind und wie solch ein Test für ansible ausschauen könnte<br>
+            Und zum Schluss werden werden wir compatibility testing definieren und im Bezug zu ansible darüber sprechen<br>
+            Schließlich basiert vieles in ansible auf python und python 2 ist mittlerweile EOL.
+        </aside>
+    </section>
+    <section>
+        <h2>Press "s" for <br>additional information</h2>
+        The presentation is enriched with speaker notes <br>
+        that can be revealed right in your browser
+        <aside class="notes">
+            N, SPACE: Next slide<br>
+            P: Previous slide<br>
+            ←, H: Navigate left<br>
+            →, L: Navigate right<br>
+            ↑, K: Navigate up<br>
+            ↓, J: Navigate down<br>
+            Home: First slide<br>
+            End: Last slide<br>
+            B, .: Pause (Blackout)<br>
+            F: Fullscreen<br>
+            ESC, O: Slide overview / Escape from full-screen<br>
+            S: Speaker notes view<br>
+            ?: Show keyboard shortcuts (only works in presentation not in speaker notes view)<br>
+            alt + click: Zoom in. Repeat to zoom back out.<br>
+        </aside>
+    </section>
+</section><section>
+    <section>
+        <h2>Ansible</h2>
+        a short story
+    </section>
+
+    <section>
+        <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
+        <br>
+        <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/person.png' height=154px></img>
+        <br>
+        automation happens when you meet a problem<br>you never want to solve again
+    </section>
+
+    <section>
+        Congrats!<br>you established a new tool
+    </section>
+    <section>
+        <table>
+            <tr>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/Ansible-Mark-RGB_Mango.svg' width=90px></img>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+                <td style="text-align:center">
+                    <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/team.png' width=168px></img>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center">Dev</td>
+                <td style="text-align:center">Sec</td>
+                <td style="text-align:center">Ops</td>
+            </tr>
+        </table>
+    </section>
+    <section>
+        not all automation is created equal
+        <aside class="notes">
+            Nicht jedes selbstgeschriebene playbook ist ein gutes playbook.<br>
+        </aside>
+    </section>
+    <section>
+        <img src='src/modules/ansible-compatibility-testing/2-ansible-intro/images/meme.jpg' width=540px></img>  
+        <aside class="notes">
+            Nicht jedes selbstgeschriebene playbook ist ein gutes playbook.<br>
+            Nur weil es funktioniert, heißt es nicht, dass es wartbar oder wiederverwendbar ist<br>
+            Und je mehr neue Leute damit arbeiten desto mehr muss auf wiederverwendung und wartbarkeit geachtet werden<br>
+            Jeder hat seine playbooks geschrieben, es hat einen richtigen boost gebracht und <br>
+            plötzlich ist man nur noch damit beschäftigt die playbooks zu aktualisieren und Fehler auszumerzen<br>
+            kurz ich habe einen nicht idealen zustand (ich mache alles manuel), durch einen anderen nicht idealen zustand (ich bin der sklave der Technologie) ersetzt
+        </aside>
+    </section>
+    <section>
+            <h2>Rules of the game</h2>
+            <aside class="notes">
+                also müssen wir Spielregeln definieren
+            </aside>
+    </section>
+    <section>
+            write ansible roles<br>
+        <ul>
+            <li>destinct purpose</li>
+            <li>configurable</li>
+            <li>test it</li>
+            <li>reusable</li>
+            <li>share it with the community</li>
+        </ul>
+        <aside class="notes">
+        </aside>
+    </section>
+<!--    <section>
+        ansible role of the day<br><br>
+        <div class="row">
+            <div class="col-7">
+                <div class="pre"><font color="#177317"># folder structure</font>
+example-role/
+└── tasks/
+    └── main.yml</div>
+            </div>
+            <div class="col-1">
+                <div class='pre'><font color="#177317"># example-role main.yml</font>
+- <font color="sandyorange">name</font>: <font color="2D5DC4">create /tmp/hello-world.txt</font>
+  <font color="sandyorange">copy</font>:
+    <font color="sandyorange">dest</font>: <font color="2D5DC4">"/tmp/hello-world.txt"</font>
+    <font color="sandyorange">content</font>: <font color="2D5DC4">"hello world"</font>
+  <font color="sandyorange">tags</font>:
+    - <font color="2D5DC4">example</font>
+    - <font color="2D5DC4">example.hello-world</font></div>
+            </div>
+        </div>
+    </section>
+-->
+</section><section>
+    <section>
+        <h2>Functional Testing</h2>
+        <ul>
+            <li class="fragment" fragment-index="1">check whether your code is working as expected</li>
+        </ul>
+    </section>
+    <section>
+        <img src='src/modules/ansible-compatibility-testing/3-molecule-intro/images/molecule.png' height=100px></img>
+        <h2>Molecule</h2>
+        <aside class="notes">
+            Developed by retr0h and is now maintained as part of Ansible by Red Hat project.
+        </aside>
+    </section>
+    <section>
+        Molecule encourages consistently <br>developed roles that are<br>
+        <ul>
+            <li>well-written</li>
+            <li>easily understood</li>
+            <li>maintainable</li>
+        </ul>
+    </section>
+    <section>
+        Molecule supports testing with multiple<br>
+            <ul>
+                <li>instances</li>
+                <li>operating systems and distributions</li>
+                <li>virtualization providers</li>
+                <li>test frameworks</li>
+                <li>testing scenarios</li>
+            </ul>
+        </ul>
+        <aside class="notes">
+            Molecule provides support for testing with multiple instances, operating systems and distributions, virtualization providers, test frameworks and testing scenarios.
+            
+            Molecule .
+
+            With Molecule, any time you want to bring up a local environment and start running your role, you just run molecule converge. And since you can use Molecule with VirtualBox, Docker, or even AWS EC2 instances, you can have your role run inside any type of virtual environment you need! (Sometimes it can be hard to test certain types of applications or automation inside of a Docker container).
+            what is molecule - why do we care?
+            ways to use molecule (vagrant, docker, azure, aws,...)
+        </aside>
+    </section>
+    <section>
+        simple tests with assertions in python<br><br>
+        <div class='pre'><font color="#177317"># Example role</font>
+- <font color="sandyorange">name</font>: <font color="2D5DC4">create /tmp/hello-world.txt</font>
+  <font color="sandyorange">copy</font>:
+    <font color="sandyorange">dest</font>: <font color="2D5DC4">"/tmp/hello-world.txt"</font>
+    <font color="sandyorange">content</font>: <font color="2D5DC4">"hello world"</font>
+  <font color="sandyorange">tags</font>:
+  - <font color="2D5DC4">example</font>
+  - <font color="2D5DC4">example.hello-world</font></div>
+        <div class='pre'><font color="#177317"># Tests</font>
+<font color="2D5DC4">def</font> <font color="6D5327">test_file_exists</font>(host):
+    f = host.file(<font color="sandyorange">'/tmp/hello-world.txt'</font>)
+    <font color="C11FF2">assert</font> f.exists
+
+<font color="2D5DC4">def</font> <font color="6D5327">test_file_content</font>(host):
+    content = host.file(<font color="sandyorange">'/tmp/hello-world.txt'</font>).content
+    <font color="C11FF2">assert</font> <font color="blue">b</font><font color="sandyorange">'hello world'</font> in content</div>
+    </section>
+<!--    <section>
+        <div class='pre'>$ molecule test</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Validating schema example-role/molecule/default/molecule.yml.
+Validation completed successfully.
+--><!-- Test matrix
+    
+└── default
+    ├── lint
+    ├── dependency
+    ├── cleanup
+    ├── destroy
+    ├── syntax
+    ├── create
+    ├── prepare
+    ├── converge
+    ├── idempotence
+    ├── side_effect
+    ├── verify
+    ├── cleanup
+    └── destroy
+...</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Action: 'converge'
+    
+    PLAY [Converge] ****************************************************************
+    
+    TASK [Gathering Facts] *********************************************************
+    ok: [instance-py38-ansiblelatest-alpinelatest]
+    
+    TASK [ansible-role-example : create /tmp/hello-world.txt] **********************
+    changed: [instance-py38-ansiblelatest-alpinelatest]
+    
+    PLAY RECAP *********************************************************************
+    instance-py38-ansiblelatest-alpinelatest : ok=2    changed=1    unreachable=0 ...</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Action: 'idempotence'
+Idempotence completed successfully.
+...
+--><!-- Action: 'verify'
+--><!-- Executing Testinfra tests found in /home/travis/build/ckaserer/...
+    ============================= test session starts ==============================
+    platform linux -- Python 3.8.0, pytest-5.3.0, py-1.8.0, pluggy-0.13.1
+    rootdir: /home/travis/build/ckaserer/ansible-role-example/molecule/default
+    plugins: testinfra-3.2.1
+collected 1 item                                                               
+    
+    tests/test_default.py .                                                  [100%]
+    
+    ============================== 1 passed in 1.23s ===============================
+Verifier completed successfully.
+...</div>
+    </section>
+-->
+</section><section>
+    <section>
+        <h2>Compatibility Testing</h2>
+        <ul>
+            <li class="fragment">check whether your code is capable of running on different
+                <table style="width:100%;">
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>hardware</li>
+                                <li>operating systems</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>applications</li>
+                                <li>networks</li>
+                            </ul>
+                        </td>
+                        <td valign="top">
+                            <ul>
+                                <li>versions</li>
+                            </ul>
+                        </td>
+                    </tr>    
+                </table>
+            </li>
+        </ul>
+        <aside class="notes">
+            <ul>
+                <li><b>Hardware</b> - It checks software to be compatible with different hardware configurations.</li>
+                <li><b>Operating Systems</b> - It checks your software to be compatible with different Operating Systems like Windows, Unix, Mac OS etc.</li>
+                <li><b>Software</b> - It checks your developed software to be compatible with other software. For example, MS Word application should be compatible with other software like MS Outlook, MS Excel, VBA etc.</li>
+                <li><b>Network</b> - Evaluation of performance of a system in a network with varying parameters such as Bandwidth, Operating speed, Capacity. It also checks application in different networks with all parameters mentioned earlier.</li>
+                <li><b>Browser</b> - It checks the compatibility of your website with different browsers like Firefox, Google Chrome, Internet Explorer etc.</li>
+                <li><b>Devices</b> - It checks compatibility of your software with different devices like USB port Devices, Printers and Scanners, Other media devices and Blue tooth.</li>
+                <li><b>Mobile</b> - Checking your software is compatible with mobile platforms like Android, iOS etc.</li>
+                <li><b>Versions</b> - It is verifying your software application to be compatible with different versions of the software. For instance checking your Microsoft Word to be compatible with Windows 7, Windows 7 SP1, Windows 7 SP2, Windows 7 SP3.</li>
+            </ul>
+            https://www.guru99.com/compatibility-testing.html
+            https://www.softwaretestinghelp.com/software-compatibility-testing/
+            https://www.testbytes.net/blog/compatibility-testing/                
+        </aside>
+    </section>
+    <section>
+        version compatibility testing<br>
+        <ul>
+            <li class="fragment">backward compatibility</li>
+            <li class="fragment">forward compatibility</li>
+        </ul>
+        <aside class="notes">
+            <ul>
+                <li>Backward compatibility Testing is to verify the behavior of the developed hardware/software with the older versions of the hardware/software.</li>
+                <li>Forward compatibility Testing is to verify the behavior of the developed hardware/software with the newer versions of the hardware/software.</li>
+            </ul>
+        </aside>
+    </section>
+</section><section>
+    <section>
+        <h2>Python 2 is officially End of Life...</h2>
+        <aside class="notes">
+            Your Python 2 applications will keep running past Jan 1, 2020 – they won’t self destruct – but they will become less reliable and more vulnerable over time as bugs, security issues and CVEs crop up. Some things to think about:
+
+            There will be no official support forthcoming for the Python 2 interpreter or the Python 2 standard libraries from the Python 2 core team. Additionally, there are no guarantees that the Python Packaging Authority (PyPA) or the Python Package Index (PyPI) will continue to support Python 2 for any length of time past the EOL date.
+            Community developers working on Python 2 and Python 3 versions of their packages will deprioritize working on their Python 2 code. In fact, many authors have indicated that all work on their popular Python 2 packages will be dropped in 2020 in favor of Python 3 development only.
+            Vendors that offer Python 2 distributions today (such as Linux vendors, Docker, cloud providers, etc) will likely phase out their support for Python 2 over time. While Python 2 offerings are unlikely to disappear from their catalog on January 1, 2020, the scope of their support may become limited over time.
+        </aside>
+    </section>
+
+    <section>
+        <h1>Are you ready?</h1>
+    </section>
+</section><section>
+    <section>
+        <h2>How to survive</h2>
+    </section>
+
+    <section>
+        <table>
+            <tr>
+                <td>ansible + molecule <font color="#f0d200">x</font> python</td>
+                <td>2.7 - production</td>
+            </tr>
+        </table>
+        <aside class="notes">
+            wie aus dem Fenster schauen um das Wetter zu beurteilen.
+            ich weiß nicht wie das Wetter heute vor 3 Monaten war, oder morgen sein wird.
+        </aside>
+    </section>
+
+    <section>
+        <table>
+            <tr>
+                <td rowspan="3">ansible + molecule <font color="#f0d200">x</font> python</td>
+                <td>2.5 - backward compatibility</td>
+            </tr>
+            <tr>
+                <td>2.7 - production</td>
+            </tr>
+            <tr>
+                <td>3.8 - forward compatibility</td>
+            </tr>
+        </table>
+    </section>
+                        
+    <section>
+        <img src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/tox.png" width="200px"> <br>
+        <ul>
+            <li>virtualenv management and test command line tool</li>
+            <li>vision: standardize testing in Python</li>
+        </ul>
+    </section>  
+
+    <section>
+        Survival Strategy<br><br>
+        <table>
+            <tr>
+                <td valign="top">
+                    <div style="position:relative; width:250px;height:300px;">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-1.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-2.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="1">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-3.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="2">
+                        <img class="fragment" src="src/modules/ansible-compatibility-testing/6-how-to-survive/images/architecture-4.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="3">
+                    </div>
+                </td>
+                <td valign="top">
+                    <ul>
+                        <li class="fragment" data-fragment-index="0">automation via ansible</li>
+                        <li class="fragment" data-fragment-index="1">functional tests via molecule</li>
+                        <li class="fragment" data-fragment-index="2">multiple python versions via tox</li>
+                        <li class="fragment" data-fragment-index="3">container as target environment</li>
+                    </ul>
+                </td>
+            </tr>   
+        </table>   
+    </section>
+
+    <section>
+        Why stop here?<br>
+        <ul>
+            <li class="fragment">add various ansible versions
+                <ul>
+                    <li>can I savely update to a newer ansible version?</li>
+                    <li>which ansible version do I need at the very least?</li>
+                </ul>
+            </li>
+            <li class="fragment">add multiple linux flavors
+                <ul>
+                    <li>verify that your role can run on RHEL 7 and RHEL 8 </li>
+                    <li>Debian 9 and 10, Ubuntu 16.04 and 18.04, ...</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+    
+    <section>
+        Well, I couldn't stop myself...
+    </section>  
+
+    <section>
+        <ul>
+            <li>ansible - latest, 2.9, 2.8</li>
+            <li class="fragment"> OS
+                <ul>
+                    <li>alpine - latest, 3.10, 3.9, 3.8</li>
+                    <li>centos - latest, 8, 7</li>
+                    <li>clearlinux - latest</li>
+                    <li>debian - latest, 10, 9, 8</li>
+                    <li>fedora - latest, 31, 30, 29, 28</li>
+                    <li>opensuse - latest, 15,</li>
+                    <li>ubuntu - latest, 20.04, 19.04, 18.04, 16.04</li>
+                </ul>
+            </li>
+            <li class="fragment"> python - 3.x, 3.8, 3.7, 3.6 </li>
+        </ul>
+    </section>  
+    
+    <section>
+        <h2>completion time</h2>
+        7 hrs 27 min 2 sec
+     </section>  
+</section><section>
+    <section>
+        <h2>recap</h2>
+        <ul>
+            <li class="fragment">you meet a problem you never want to solve again</li>
+            <li class="fragment">you establish a new tool - congrats!</li>
+            <li class="fragment">it gets adopted</li>
+            <li class="fragment">jointly define the rules of the game</i>
+                <ul>
+                    <li class="fragment">create reusable ansible roles</li>
+                    <li class="fragment">functional testing with molecule</li>
+                    <li class="fragment">version compatibility testing</li>
+                    <li class="fragment">choose purposeful compatibility scenarios</li>
+                </ul>
+            </li>
+        </ul> 
+    </section>
+</section><section>
+    <section>
+        <h2>gepard who?</h2>
+    </section>
+    <section>
+        </img><h2>That's us</h2>
+        <table>
+            <tr>
+                <td  valign="top">
+                    <ul>
+                        <li>office: vienna / linz</li>
+                        <li>size: ~ 40 people</li>
+                        <li>we do what we love..
+                            <ul>
+                                <li>custom software solution</li>
+                                <li>cloud transformation</li>
+                                <li>devOps automation</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </td>
+                    <td valign="top">
+                        <img src='src/modules/202002-iaam/8-thank-you/images/team.jpg' width=450px></img>
+                    </td>
+                    <td valign="top" align="center">
+                        <img src='src/modules/202002-iaam/8-thank-you/images/rh_premium_partner.jpg' width=150px><br>
+                        <img src='src/modules/202002-iaam/8-thank-you/images/jboss.svg' width=150px><br>
+                        <img src='src/modules/202002-iaam/8-thank-you/images/openshift.svg' width=100px>
+                    </td>
+            </tr>
+        </table>
+        <p class="fragment" data-fragment-index="1">..and we are extremly good at it</p>
+        <aside class="notes">
+            Wir sind eine kleine Firma bestehend aus knapp 40 Mitarbeitern in Wien und Linz.<br>
+            Wir sind auf custom software entwicklung spezialisiert mit einem zusätlichen Focus auf cloud transformation und devOps Automatisierung<br>
+            Ich bin sehr stolz darauf, sagen zu können, dass wir im Beruf das machen, was uns begeistert.<br>
+            Das macht uns zu einem ausgezeichneten Partner.
+        </aside>
+    </section>
+    <section>
+        <div style="position:relative">
+            <h2 class="fragment fade-out" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                questions?
+            </h2>
+            <h2 class="fragment fade-in" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                thank you
+            </h2>    
+        </div>
+        <br>
+        <br>
+        <table>
+            <tr>
+                <td valign="center">
+                    <ul>
+                        <li style="font-size:24px !important">slides: <a href="https://gepardec.github.io/presentations/2020-iaam-ansible-compatibility-testing">https://gepardec.github.io/presentations/202002-iaam</a></li>
+                        <li style="font-size:24px !important">pdf: <a href="https://gepardec.github.io/presentations/2020-iaam-ansible-compatibility-testing.pdf">https://gepardec.github.io/presentations/202002-iaam.pdf</a></li>
+                        <li style="font-size:24px !important">code: <a href="https://github.com/gepardec/ansible-role-example">https://github.com/gepardec/ansible-role-example</a></li>
+                        <li style="font-size:24px !important">roadshow: <a href="https://events.redhat.com/profile/form/index.cfm?PKformID=0x129543abcd">Containers and Cloud-Native Road Show</a></li>
+                        <li style="font-size:24px !important">author: <a href="mailto:clemens.kaserer@gepardec.com"> Clemens Kaserer</a></li>
+                    </ul>
+                </td>
+                <td>
+                    <img src='src/modules/202002-iaam/8-thank-you/images/frame.png' height=250px></img>
+                </td>
+            </tr>
+        </table>
+    </section>
+</section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+
+            // Full list of configuration options available at:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+                menu: {
+                    themes: false,
+                    transitions: false,
+                },
+
+                // Optional reveal.js plugins
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true },
+                    { src: 'plugin/notes/notes.js', async: true }
+                ]/*,
+
+                // uncomment this block to make left/right advance slide and up/down advance chapter.
+                keyboard: {
+                    39: 'next',
+                    37: 'prev',
+                    38: 'left',
+                    40: 'right'
+                }
+                */
+            });
+
+        </script>
+
+    </body>
+</html>

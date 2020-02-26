@@ -43,6 +43,13 @@ function docker-present-redhat-forum-2020 () {
 readonly -f docker-present-redhat-forum-2020
 [ "$?" -eq "0" ] || return $?
 
+# docker-present-202002-iaam
+function docker-present-202002-iaam () {
+  execute "docker run -d -p 8080:8080 --entrypoint=/opt/revealjs/bin/present.py --name docker-present-202002-iaam gepardec/presentations 202002-iaam 8080"
+}
+readonly -f docker-present-202002-iaam
+[ "$?" -eq "0" ] || return $?
+
 # docker-present-publish-revealjs
 function docker-present-publish-revealjs () {
   set -e
@@ -86,7 +93,7 @@ function docker-present-export () {
   set -e
   docker-present-build
   docker-present-${presentation}
-  execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape ${decktape_opts} --size=3840x2160 http://localhost:8080 ${presentation}.pdf"
+  execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape ${decktape_opts} --size=1920x1080 http://localhost:8080 ${presentation}.pdf"
   execute "docker run --rm -it -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides --entrypoint bash woahbase/alpine-libreoffice:x86_64 -c 'soffice --headless --infilter=\"impress_pdf_import\" --convert-to odp --outdir /slides/ /slides/${presentation}.pdf'"
   docker-present-stop ${presentation}
   set +e
