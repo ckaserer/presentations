@@ -94,7 +94,7 @@ function docker-present-export () {
   docker-present-build
   docker-present-${presentation}
   execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape ${decktape_opts} --size=1920x1080 http://localhost:8080 ${presentation}.pdf"
-  execute "docker run --rm -it -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides --entrypoint bash woahbase/alpine-libreoffice:x86_64 -c 'soffice --headless --infilter=\"impress_pdf_import\" --convert-to odp --outdir /slides/ /slides/${presentation}.pdf'"
+  execute "docker run --rm -it -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides --entrypoint bash woahbase/alpine-libreoffice:x86_64 -c 'soffice --headless --infilter=\"impress_pdf_import\" --convert-to odp --outdir /slides/ /slides/docs/${presentation}.pdf'"
   docker-present-stop ${presentation}
   set +e
 }
