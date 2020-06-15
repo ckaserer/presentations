@@ -16,19 +16,5 @@ notifications:
     - by %{author} %{result} in %{duration}
     on_success: change
     on_failure: always
-env:
-  global:
-  - secure: nXMPRb0gEtgMd2P/bxLFDefkjh6aV4HyKYP3YnWhMZT7511fJEsu2V61iTwoo0xg8aJCZJE+yzcZ6W0t7fvnrk74yWWQRbJJpoP8NdUJKMemXwAglxd43ZWuZzS6rQ4OVcSdwghPx5BuqEzuZMyTAtg6RNnlseXkueXwRT2n3N6Sj1wfGKSrWK/+OU7Dr8fbKLbxli7sCEGXyJXFYobLxyynVwoRKMkinbZe7Z4QrvPKjyu7wtdMU0VUq1fylj5efbuOVcnpKz3RUmL9HtA/3fioyLnt6mKUqzJRX1e7wGCrgRRTVuvdKtltpwuDLAglBee0L4XMF+g92i2G5TJ28y+King+nqH8KTT3dDOsXxKnWpCIU/ChG5FS0vFpA1siVYmhmHZVXM1orJ0/IOVyTO1BHEq5hwwckH4D3le1ATjgGd5N6mOC8Kawya1CEz5EE2ZaUnCXPh2eAsARSreuTMg3MubRVDQfoIw12tqAsJhSK1cGxWqbFGmntHnAdC7lJ3VpmHhDVi+6mHghZBRmloLtwB8VboG3sazXSmslDLam53X8kqdD8BFMXRrCd2x5ZC9MEDXf1US9QBfkUD7zY04gB8MSG7Z+2n2AykiBSf9Br6N1tzjZF/GWYFnzWmsuupBwQLt1IdWznGGLznycLloAU9AxkW5zfwDhsj/hXvc=
-  - secure: kx9JHwH3VBhwDE6f8DaxUR7acqwEx4Ah0OIJHhy7xqiOigdfahokynUttO53B1GJkQiC0eAtsMnrPCcJkiDLIo4vj0FdkjnqzU+Fwh8lU2qLCnOAI0KK0Y/2sBLgdS6nNIPAWcZZDq7J4ONTG4UfjUXzNBtGYL2E9lCWz9Hw/igDT9qfM0+dbNmuZez1zwOuknGLtNMB8Rl4RjtbbZiri/wMLJMcfzGD96G4x/tTSRF2uMA3h/RqR3ZhBIR2/0/PftzWaKjqPt2Q8ZEc84P1EvrH4FmGgWrqRW5flmEuPJPNGLgHac7yDyDE22VyLecFT3Hm4dsm3AdW5A58tql6Xciw3p3QgJniF1+iXFFD0StTGccKh4AlBNPynUTZwsExSpahvsvr6ntIVJYnc4fkE0SGZFuXBIDX3tNXQzw+PhEEsK0wnF8jX0T4qIDeaWXporMG0gPuMtEcLtK/NKq9APtRTUj3q9kJ2N3HX4z3DhtlOkKC34fKK4c4WoHZ7mZI/eNSBCSCqq+oHC4saglIYxCask+nr1+BeM1z4GfGeWn/6p+FyMnSBvX7FTtp/Old8xzBKEoFO2N5O/gCmbgP+XSOmaFtcs5bpw/Zsiq4dVQoKNBYZZ6M/XcdTDqNcrp8MhcCLCcD/AygWOSDje+diwVe/uZp79uEP6mnp9myG/Y=
 script:
 - ".ci/test.sh"
-deploy:
-  provider: script
-  script: bash bash-script-collection/docker-push-image.sh \ 
-    --docker-org  gepardec \
-    --docker-repo presentations \
-    --docker-user ${DOCKER_USER} \
-    --docker-pass ${DOCKER_PASS}
-  skip_cleanup: true
-  on:
-    branch: master
