@@ -7,11 +7,12 @@ RUN apt-get update && \
 WORKDIR /opt/revealjs
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node && \
-    git clone https://github.com/hakimel/reveal.js.git /opt/revealjs && \
+    git clone --shallow-submodules --recurse-submodules --branch 3.9.2 https://github.com/hakimel/reveal.js.git /opt/revealjs && \
     git clone https://github.com/denehyg/reveal.js-menu.git /opt/revealjs/plugin/menu && \
     npm cache clean --force && \
-    npm install
+    npm install -f 
 
 ENTRYPOINT ["/opt/revealjs/bin/prompt"]
 
+ARG BREAK=no
 COPY . /opt/revealjs/
