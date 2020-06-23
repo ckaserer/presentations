@@ -17,7 +17,7 @@ body {
 .reveal {
   font-family: "Barlow_Regular";
   font-size: 38px;
-  font-weight: normal;
+  font-weight: lighter;
   color: rgb(0, 0, 0); }
 
 ::selection {
@@ -92,7 +92,7 @@ body {
   display: inline-block;
   text-align: left;
   /*margin: 0 0 0 1em; */
-  margin: 0em;
+  margin: 0 0 0 -10px;
 }
 
 .reveal li {
@@ -115,7 +115,7 @@ body {
 .reveal ul li ul li:before {
   content: '\2D';
   color: black;
-  margin-left: -33px;
+  /*margin-left: -33px;*/
   margin-right: 18px;
 } 
 
