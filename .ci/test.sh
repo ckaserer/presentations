@@ -1,5 +1,14 @@
 #!/bin/bash
 
+
+git clone https://github.com/ckaserer/bash-script-collection.git
+
+if [ -d bash-script-collection/ ]; then
+  for functionFile in bash-script-collection/functions/*.sh; do
+    source ${functionFile} >/dev/null
+  done
+fi
+
 source bashrc
 
 set -e
