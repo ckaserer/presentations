@@ -1,0 +1,12 @@
+training-containerization/01-welcome
+training-containerization/02-docker-story
+training-containerization/03-container-basics
+training-containerization/04-creating-images
+training-containerization/05-volumes 
+training-containerization/06-container-ending
+training-containerization/07-networking-basics
+training-containerization/09-kubernetes
+training-containerization/10-orchestration-ending
+training-containerization/11-system-commands
+training-containerization/13-compose
+training-containerization/14-ending

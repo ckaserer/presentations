@@ -1,0 +1,794 @@
+<section>
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Introduction to Swarm Mode</h2>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Discussion: Any App, Anywhere?</h2>
+
+        <p>Containers are portable. What does this imply about the best ways to manage a containerized data center?</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Lead class to consider the advantage of letting containers get scheduled anywhere, rather than controlling exactly where they get scheduled. Then, explore what the consequences of what spreading containers across multiple hosts are (need for management, control and data planes; need for some special-case control over scheduling decisions).</li>
+                <li>Hint questions if the class is stuck:</li>
+                <li>In general, does it matter where a given container gets scheduled? Why or why not? (conclude that in most cases, it doesn't matter, but there may be special cases such as needing specific hardware, or being sensitive to resource availability).</li>
+                <li>If we're scheduling containers on any arbitrary host in our datacenter, we're going to need some sort of cluster manager in order to administrate all these hosts and containers. How will we provide service discovery? (Consider things like peer-to-peer service discovery (no choke points but could generate a lot of traffic), hub and spoke distribution (potentially less traffic but single points of failure), lookup from a kv store (just-in-time lookup could minimize traffic but might block traffic depending on implementation). Others?)</li>
+                <li>Once we've solved the service discovery problem, how are we going to get packets from one host to another? Recall that so far, we've only seen linux bridges moving packets around at layer 2.</li>
+                <li>Enabling this full-datacenter scheduling and solving the corresponding and communication challenges are the fundamental responsibilities of any production-ready container orchestrator.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Learning Objectives</h2>
+
+        <p>By the end of this module, learners will be able to</p>
+        <ul>
+            <li>Create a swarm and schedule workload on it via services and stacks</li>
+            <li>Provision configuration to services via configs and secrets</li>
+            <li>Control scheduling decisions governing where containers are placed in the swarm</li>
+            <li>Configure service discovery and routing for swarm services</li>
+            <li>Manage application lifecycle on swarm</li>
+        </ul>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Orchestrator Goals</h2>
+
+        <p><span class='keyword'>Top-line goal:</span> operate a datacenter like a <span class='keyword'>pool of compute resources</span> (not individual machines). This requires:</p>
+
+        <ul>
+            <li>Add / remove compute resources securely and easily</li>
+            <li>Schedule containers across the cluster transparently</li>
+            <li>Streamline container-to-container communication (service discovery, load balancing and routing)</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>The core goal of any orchestrator is to let you treat a bunch of computers like a pool of compute resources ready to support your containerized workloads; the fact that containers are so portable and work the same way anywhere means we generally don't have to care too much what specific node they get scheduled on. Instead, we'd like to delegate that decision to our orchestrator, and think about our cluster as a whole rather than as a lot of individual machines.</li>
+                <li>In order to actually do that, there are some minimal requirements any orchestrator will need to satisfy:</li>
+                <li>Not only do we have to be able to add new nodes to our cluster, this has to be done in a way that is secure at join time, and secure in communication long term.</li>
+                <li>Our orchestrator will need to be able to schedule workload anywhere in the cluster; this is perhaps the easiest part, thanks to the portability of containers. Beyond this, our orchestrator should also be responsible for automatically maintaining that workload as much as possible.</li>
+                <li>Finally, with our applications potentially divided among many containers and hosts, we'll need our orchestrator to help us communicate between these containers, by facilitating service discovery, load balancing and routing appropriate to the networking needs of each of our applications.</li>
+                <li>There are of course many more things an orchestrator could do for us, but these are the core concerns that any feasible orchestrator must do.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Orchestrator Architecture</h2>
+
+        <p>Orchestrators rely on three networking planes:</p>
+
+        <ul>
+            <li><span class='keyword'>Management plane</span>: cluster &amp; workload maintenance</li>
+            <li><span class='keyword'>Control plane</span>: service discovery</li>
+            <li><span class='keyword'>Data plane</span>: routing</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>The architecture of an orchestrator typically relies on three networking planes: a control plane for service discovery, a data plane for routing, and a management plane for cluster construction and workload maintenance.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Swarm Management Plane</h2>
+
+        <p>Management plane: <span class='keyword'>Raft consensus</span></p>
+
+        <ul>
+            <li>High availability guaranteed via multiple manager nodes</li>
+            <li>All decisions made by majority consent</li>
+            <li><span class='keyword'>Consequence</span>: must have odd number of managers</li>
+        </ul>
+
+        <p>Note: all management plane communications are <span class='keyword'>mutually TLS encrypted by default</span>.</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Beyond the core management functions of scheduling workloads and adding new nodes to the cluster, the management plane's most important responsibility is providing high availability for these management functions.</li>
+                <li>We can imagine doing this by provisioning multiple redundant managers, but then we create another problem: how do we make sure all our managers agree on what containers are supposed to be running where? This is called a consensus problem.</li>
+                <li>Swarm instantiates its management plane as a raft consensus. Raft is a distributed decision making algorithm designed to maintain consensus between a group of decision makers, to solve exactly the kind of problem described above.</li>
+                <li>Key raft consensus decisions are made by majority consent; the important practical consequence of this is that you should always have an odd number of managers, to ensure simple majorities in go / no-go votes. Failing to do so can lead to consensus loss, which is a leading cause of potentially catastrophic cluster failures.</li>
+                <li>Another thing to note about Swarm's management plane, is that it is automatically mutually TLS encrypted, using either self-signed certs provisioned by Swarm's onboard certificate authority, or by certs signed by a third party CA you can define upon swarm creation.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Swarm Control Plane</h2>
+
+        <p>Control plane: <span class='keyword'>gossip network</span></p>
+
+        <div class='row'>
+            <div class='col-5'>
+                <img src='src/modules/fundamentals/swarm-mode/images/gossip.png' style='width:70%'></img>
+            </div>
+            <div class='col-6'>
+                <ul>
+                    <li>Gossip model: random peers share knowledge of state of the cluster every tick</li>
+                    <li>Scheduling info propagates peer-to-peer (see SWIM protocol)</li>
+                    <li><span class='keyword'>Consequence</span>: p2p control plane scales like O(n) but is 'eventually consistent': must retry failed lookups.</li>
+                </ul>
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>The second networking plane we need to maintain is a control plane, that will allow a container running on any host to look up the location in the cluster of any other container they want to communicate with - think of it as the cluster's 'container phonebook'.</li>
+                <li>The simplest way to implement this would be to have every node report their containers to every other node in an 'all to all' heartbeat; but this would scale very badly as the number of nodes increases. Alternatively, we could imagine a 'hub and spoke' model, where every node reported their containers to a central broker, and every node could look up container lists there; but this would then generate a potentially large amount of traffic to a single point of failure in the cluster.</li>
+                <li>We want a control plane that is both scalable and peer-to-peer; in order to do this, Swarm implements a gossip network based on the SWIM (Scalable Weakly consistent Infection-style group Membership) protocol.</li>
+                <li>In the gossip network, every tick each node reports what it know about the current scheduling state of the entire cluster to three random peers.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Swarm Data Plane</h2>
+
+        <p>Data plane: <span class='keyword'>VXLAN tunnel</span></p>
+
+        <div class='row'>
+            <div class='col-6'>
+                <img src='src/modules/fundamentals/swarm-mode/images/overlay-network.png'></img>
+            </div>
+            <div class='col-5'>
+                <ul>
+                    <li>Encapsulates L2 (MAC address) packet with L3 (IP) header</li>
+                    <li>Based on UDP (not TCP): no dropped packet guarantees</li>
+                </ul>
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>Finally, Swarm implements its data plane as an off-the-shelf vxlan tunnel, which uses the host information learned from the gossip control plane to take the L2 packets containers are sending to the local linux bridge, and encapsulates them in L3 headers that can traverse the network to the correct destination host, which then decapsulates them and forwards them on at L2 to their intended container.</li>
+                <li>If the linux bridges we saw earlier are like the 'mail room' in an office building that knows how to move messages within the building, the vxlan endpoint is like a 'post office' that knows how to move a message from building to building.</li>
+                <li>Note that vxlan is a UDP-based protocol, in order to avoid double-encapsulation of packets. As such, it does not confirm receipt like a TCP connection.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Swarm Network Topology</h2>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/swarm-planes.png'></img>
+        <p>Note: fixed IPs for managers, dynamic IPs OK for workers</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Swarm's control, data and management planes come together to look like this.</li>
+                <li>Control gossip proceeds on 7946 UDP, with infrequent full state syncs on 7946 TCP.</li>
+                <li>Note that gossip networks are scoped to networks, just like we saw for single host networking.</li>
+                <li>The VXLAN data plane proceeds on 4789 UDP.</li>
+                <li>Finally, management plane communications proceed on 2377 TCP on manager nodes, both for scheduling lookup and raft consensus traffic.</li>
+                <li>When something goes wrong with a swarm, it is very often that this figure is not satisfied; either a port is blocked, or nothing is listening on an otherwise open port. Check your port setup and configuration as one of the first steps when troubleshooting.</li>
+            </ul>
+        </aside>
+    </section> 
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Docker Services</h2>
+
+            <ul>
+                <li>Goal: declare and (re)configure many similar containers all at once</li>
+                <li>Goal: scale apps by adding containers seamlessly</li>
+                <li>A <span class='keyword'>service</span> defines the <span class='keyword'>desired state</span> of a group of identically configured containers.</li>
+                <li>Docker provides <span class='keyword'>transparent service discovery</span> for Services.</li>
+            </ul>
+
+            <aside class='notes'>
+                <ul>
+                    <li>So far, we've declared containers one at a time with `docker container run...`, and we've seen how to network individual containers together. This all works, but doesn't scale conveniently.</li>
+                    <li>Since we're going to start designing apps to consist of potentially many containers, we'd like to be able to create and reconfigure containers en masse.</li>
+                    <li>Furthermore, we need to put some thought into how service discovery, load balancing and routing will work in this paradigm; if we scale up an app by declaring more containers, how will we make sure traffic ends up getting routed to them appropriately?</li>
+                    <li>To address this problem, Docker orchestration introduces the idea of services. A service defines the desired state of a collection of identically configured containers, allowing us to declare a batch of containers all at once, and reconfigure them later by updating the service definition.</li>
+                    <li>Furthermore, Docker provides out-of-the-box service discovery for services, automatically providing and configuring the networking necessary for these groups of containers to interact.</li>
+                </ul>
+            </aside>
+    </section>  
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Services vs. Tasks vs. Containers</h2>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/servicetaskcontainer.png'></img>
+
+        <aside class='notes'>
+            <ul>
+                <li>One point that often confuses new Swarm users is the difference between services, tasks, and containers.</li>
+                <li>Tasks are an implementation detail of how services schedule and manage containers; there is always exactly one task for every replica of a service, and every task consists of exactly one container, plus information about the scheduling decision for that container.</li>
+                <li>Where this matters in practice is when trying to get information about a task or container; task IDs are NOT the same as container IDs, and inspecting them will yield different results; `docker service ps` will give task ids, which are usually good to look at when trying to understand scheduling status, while `docker container ls` gives the container IDs we're now familiar with.</li>
+            </ul>
+        </aside>
+
+    </section>    
+
+    <section data-background="#340B65" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon">Instructor Demo: Self-Healing Swarm</h2>
+        
+        <p>See the demo</p> 
+        
+        <ul>
+            <li class='demo' script='self-healing-swarm-demo.md'>Self-Healing Swarm</li>
+        </ul>
+
+        <p>In the Exercises book.</p>
+    </section>  
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Swarms &amp; Services</h2>
+        <p>Work through</p> 
+        <ul>
+            <li class='exercise' script='creating-a-swarm.md'>Creating a Swarm</li>
+            <li class='exercise' script='starting-a-service.md'>Starting a Service</li>
+            <li class='exercise' script='node-failure-recovery.md'>Node Failure Recovery</li>
+        </ul>
+        <p>in the Exercises book.</p>
+    </section> 
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Pets Versus Livestock</h2>
+
+        <div class='row'>
+            <div class='col-4'>
+                <ul>
+                    <li>Swarm reschedules exited containers automatically</li>
+                    <li style='margin-right:1em'>When a container becomes unhealthy, <span class='keyword'>kill it and get a new one</span>.</li>
+                </ul>
+            </div>
+            <div class='col-8'>
+                <img src='src/modules/fundamentals/swarm-mode/images/petsvslivestock.png' style="background:none !important;">
+                 <figcaption style="font-size:50%; line-height:0; text-align:center; margin-top: 1em;">Dog photo <a href="https://www.flickr.com/photos/jeffreyww/4975374886/in/photolist-8zE6BC-c9tWCb-c9tXfd-5a7MyF-c3KLuL-5dDirY-axQTra-c9sgSG-amLcYQ-c3KFn7-c9tXo1-c9tWc9-dHZUz-rgAhXo-rW2iU1-KSM6e-pSCtLH-qF7ff3-5Sqz9E-fmSgbs-7KxKak-8TZKk8-6gVmH9-ehfejV-ehtrx4-bD41t2-aiMDUn-8U3iS9-DacH2L-63pHfi-8TZfEH-93nazZ-dmdgPv-85pGjL-8p9Un7-8p9Ui3-5a7EUt-8qP6BK-345kg4-8BRoqc-65p6Gq-YkNMy4-8J4rLP-o2EFGs-H43vF2-8U3jm3-8U48Fb-Si8zjf-8U48pY-2dBGh2">jeffreyw</a>; Livestock photo <a href="https://www.flickr.com/photos/pauljill/28350728097/in/photolist-KcfTJR-a38m8q-tNhS3j-27TRuXP-Ssmqi7-9uD1Xw-PyTy8A-4D77Jm-8pSu5Q-W3FcwF-ZypKkz-Ue3XvX-VP9jfs-28pSeWb-UP2ryi-LQt3rp-UT391d-MEqR17-Y7sweh-8X7vrU-Y7FJfm-QBydX8-FgTo81-XZr5cN-SPXUwJ-rhVK-bmDYEB-dPFa64-287ET1L-UZyj2p-TcrWzo-ZzPMvn-8JAYv1-48S7W5-8C3qEJ-J6FjAR-urgqiC-f4E4kU-DTLaj9-24prtP3-6P3yWW-28ynA9Q-UPjBk8-UyDxAW-XwKZRW-24HpVUY-ehvBKf-HbXbmw-BSCQ2s-8Uz7pW"> Paul Asman, Jill Lenoble</a>; images <a href='https://creativecommons.org/licenses/by/2.0/'>CC-BY 2.0</a></figcaption>
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>In the exercises and demos so far, we've seen how Swarm will reschedule containers after they exit. This is a crucial feature for how we think about managing orchestrated container workloads.</li>
+                <li>We often describe this mindset as livestock management, versus pet care. With a pet, we concern ourselves with every injury and illness, and attempt to keep our pet healthy and happy as long as possible; this is the wrong way to think about troubleshooting containers. As any rancher knows, what matters is not the health of an individual livestock animal, but the health of the herd. If one animal gets sick, the right course of action is to kill it and get a new one. The same is true with containers; if a container scheduled by swarm misbehaves, the first course of action to take is to kill it and let Swarm reschedule it.</li>
+                <li>If pathologies persist after rescheduling fresh containers, then a more serious debugging effort makes sense - but not when a single container gets rescheduled or has to be restarted.</li>
+                <li>Bear in mind this is usually a big change from how we thought about managing VMs - VMs were more like pets we want to keep alive. Bringing the same management and troubleshooting mindset to the containerization world is a common mistake that causes new container users a lot of unnecessary pain.</li>
+            </ul>
+        </aside>
+    </section> 
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Scheduling Control</h2>
+
+        <p>Ops may want to influence container scheduling decisions to accommodate things like:</p>
+
+        <ul>
+            <li>Resource constraints</li>
+            <li>Hardware requirements</li>
+            <li>Reserved / decommissioned nodes</li>
+            <li>Daemon-type services</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>In what we've seen so far, Swarm schedules workload roughly spread out across your cluster as its default scheduling decision. There are a number of circumstances when we may want to exert more control over where a container gets scheduled:</li>
+                <li>If a container requires access to a particular piece of hardware that might not be available on every node in your cluster (GPUs, SSDs are common examples), we need to constrain scheduling decisions to guarantee they always land on those nodes</li>
+                <li>If we want to reserve nodes for use in special circumstances, or if we want to start decommissioning a node and therefore don't want any new workload assigned to it, we'd like a way to discourage or prevent new containers from being scheduled there</li>
+                <li>We also need a way to express daemon-like services: services that make sense to instantiate on every node in the cluster, rather than as a collection of processes scheduled wherever its convenient.</li>
+                <li>Finally and especially in a high-density or large scale production environment, we want to ensure that none of our nodes are overprovisioned with containers trying to take up more CPU or memory than is available.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Resource-Aware Scheduling</h2>
+
+        <div class="row">
+            <div class="col-7">
+                <p>A typical scenario:</p>
+                <ul>
+                    <li>Nearly all node memory consumed</li>
+                    <li>Memory overconsumption causes one node failure</li>
+                    <li>Containers from failed node are rescheduled elsewhere</li>
+                    <li>New hosts now overprovisioned, crash</li>
+                    <li>Result: <span class='keyword'>cascading cluster failure</span></li>
+                </ul>
+            </div>
+            <div class="col-5">
+                <img src="src/modules/fundamentals/swarm-mode/images/overprovision.png" title="Out of Memory">
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>Another form of scheduling control is resource aware scheduling: making sure that enough system resources like memory and CPU are available on a host before scheduling a container there.</li>
+                <li>Failing to do this can lead to catastrophic cluster failure! Remember, containers are fundamentally just processes, and by default run unconstrained in their resource usage. Nothing stops them from overconsuming memory and CPU until their host becomes unresponsive or crashes.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Resource-Aware Scheduling</h2>
+
+        <ul>
+            <li>CPU and memory allocation controls provide two possible constraints:
+                <ul>
+                    <li><code>reservation</code>: amount of resources to reserve for this container</li>
+                    <li><code>limit</code>: do not allow container to consume more than this</li>                   
+                </ul>
+            </li>
+            <li>limit &lt;= reservation to avoid overprovisioning after scheduling has completed</li>
+            <li>See <code>docker system info</code> for total allocatable resources</li>
+            <li><span class='keyword'>Best practice:</span> always specify resource constraints</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>In order to avoid overprovisioning disasters, containerized processes can be constrained via CPU and memory cgroups; Swarm exposes these through the reservation and limit container specs.</li>
+                <li>Swarm will not schedule a container on a node if its requested CPU or memory exceeds the remaining allocatable CPU or memory on the node in question.</li>
+                <li>Note that reservations govern scheduling decisions only; once scheduled, nothing prevents a container from consuming arbitrary resources, even in excess of its resource reservation.</li>
+                <li>To stop overprovisioning after scheduling, we also impose resource limits on containers. In the case of CPU limits, this represents the maximum fractional amount of CPU time the container is allowed to consume. In the case of memory, the container becomes eligible for an out-of-memory killed termination.</li>
+                <li>In general, it is always a good practice to use resource reservations and limits to prevent overprovisioning that can lead to pod, node and even cluster failure</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Node Labeling</h2>
+
+        <ul>
+            <li>Node label: arbitrary key/value pairs applied to nodes</li>
+            <li>A node can bear any number of labels</li>
+            <li>Scheduling options:
+                <ul>
+                    <li><span class='keyword'>Hard requirement</span>: service must schedule containers on nodes with a particular label (ex: hardware requirements)</li>
+                    <li><span class='keyword'>Topological spread</span>: service will be spread out across all values of a given label (ex: spread containers out across racks, voltage zones etc)</li>
+                </ul>
+            </li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>In order to articulate scheduling controls, Swarm allows us to apply node labels to our nodes.</li>
+                <li>Node labels take the form of user-defined key value pairs.</li>
+                <li>Once our nodes are labeled, we can use those labels to influence scheduling in a couple of different ways:</li>
+                <li>We can apply hard requirements to services, forcing containers for this service to be scheduled only on nodes bearing the appropriate label and value. A common example of this is restricting the placement of containers with special hardware requirements to appropriate nodes</li>
+                <li>Another way to use labels is with topological preferences; we can ask that a service be spread out across as many different values of a particular label as possible. This is typically done for fault tolerance; consider spreading containers for a service out across failure regions in your datacenter, like racks, availability zones or voltage zones.</li>
+            </ul>
+        </aside>
+    </section> 
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Replicated vs. Global Scheduling</h2>
+
+        <ul>
+            <li><span class='keyword'>Replicated</span>: service requests a scalable number of replicas, scheduled according to flexible constraints (exactly what we've seen so far)</li>
+            <li><span class='keyword'>Global</span>: exactly one container runs on every node (appropriate for daemon-like services, ex. logging, monitoring, disk management)</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>Another tool for manipulating scheduling is global mode scheduling. Global scheduling is designed to support daemon-like services, that make sense to run exactly one instance of on every host.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Swarm Scheduling</h2>
+        <p>Work through</p> 
+        <ul>
+            <li class='exercise' script='swarm-scheduling.md'>Swarm Scheduling</li>
+        </ul>
+        <p>in the Exercises book.</p>
+    </section> 
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Provisioning Configuration</h2>
+
+        <ul>
+            <li>Configuration changes between environments</li>
+            <li>Want to provision <span class='keyword'>modular</span> configuration at run time</li>
+            <li>Solutions: 
+                <ul>
+                    <li><span class='keyword'>.env files</span>: environment variables</li>
+                    <li><span class='keyword'>docker config</span>: plaintext config files</li>
+                    <li><span class='keyword'>docker secrets</span>: encrypted config files</li>
+                </ul>
+            </li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>So far, we've used our orchestrator to schedule workload on a cluster. In practice, applications often need configuration that changes from environment to environment. We'd like our images and the services built off of them to stay portable, and not need to be redefined or recreated for each environment; we'd like those configurations to be 'pluggable', as modular components that our orchestrator can provision to running containers. Swarm provides just that, in the form of .env files, docker config objects, and docker secrets.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Low-Security Configurations</h2>
+
+        <ul>
+            <li><span class='keyword'>.env files</span>: 
+                <ul>
+                    <li>list of variables and values in a text file</li>
+                    <li>provisioned to the service on creation</li>
+                    <li>declared as environment variables in each running container for that service</li>
+                </ul>
+            </li>
+            <li>
+                <span class='keyword'>docker config</span>:
+                <ul>
+                    <li>File stored in Swarm's raft database</li>
+                    <li>provisioned to service as a 'config' object</li>
+                    <li>File appears at specified path in every service container</li>
+                </ul>
+            </li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>When provisioning configuration without any particular security concerns, .env files and docker config objects provide a way to declare environment variables and config files, respectively, in a way that keeps them well separated from service and image definitions.</li>
+                <li>Bear in mind, these are based on plaintext records of the configurations in question; they are not appropriate for sensitive information.</li>
+            </ul>
+        </span>
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>High-Security Config: Docker Secrets</h2>
+
+        <ul>
+            <li>Need to provision secure info to containers: passwords, keys, access tokens</li>
+            <li>Must have this info available to managers</li>
+            <li>But, NEVER want this information sitting or transmitted unencrypted on host disk.</li>
+            <li>Solution: <span class='keyword'>docker secrets</span>
+                <ul>
+                    <li>Encrypted on managers in raft db</li>
+                    <li>Encrypted in transit to workers by Swarm's default mutual TLS</li>
+                    <li>Mounted from in-memory tmpfs on worker, not disk (linux only), to files in container filesystem</li>
+                </ul>
+            </li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>.env files and docker configs were good for provisioning non-sensitive information to containers, but they aren't appropriate for things like passwords or access tokens, which are especially important to keep out of our images and source code, and provision only to the containers authorized to use them. For this purpose, we have docker secrets.</li>
+                <li>Docker protects secret information throughout its lifecycle by encrypting it on disk in the manager consensus; sending it encrypted to worker nodes who need it via Swarm's default mutual TLS encryption between workers and managers; and hosting it on worker nodes exclusively in a temporary filesystem in memory, rather than on disk (tmpfs currently only available on linux workers).</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Docker Stacks</h2>
+
+        <ul>
+            <li>yaml manifest describing all elements of application (services, configs, secrets, networks, volumes etc.)</li>
+            <li>Stand up &amp; tear down an app in one command</li>
+            <li>Superset of the docker-compose specification: <a href='https://dockr.ly/2iHUpeX'>https://dockr.ly/2iHUpeX</a></li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>To set up an app in swarm mode, we need to leverage a new concept: a docker stack</li>
+                <li>stacks are defined by a docker-compose file, which includes all the details about what services are involved in the app, what images to use for them, how many replicas of each are required, what networks they can talk to each other on, and anything else necessary to define the desired state of our app.</li>
+                <li>Note that stacks don't really add any deep new functionality to swarm - they're essentially just a 'bundle' of resources connected to form an app that can be stood up and torn down in a single command.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Stack Files</h2>
+
+        <div class='row'>
+            <div class='col-6'>
+                <div class='pre'>version: "3.7"    
+
+<span class="red-bg">services</span>:
+  <span class="blue-bg">db</span>:
+    image: postgres:9.6
+    env_file:
+      - myvars.env
+    configs:
+      - source: initscript
+        target: /docker-entrypoint-initdb.d/init.sh  
+    secrets:
+      - password
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/password
+
+<span class="red-bg">configs</span>:
+  <span class="blue-bg">initscript</span>:
+    file: ./db-init.sh
+
+<span class="red-bg">secrets</span>:
+  <span class="blue-bg">password</span>:
+    external: true</div>
+            </div>
+            <div class='col-6'>
+                <ul>
+                    <li><span class="red-bg">Top level keys</span>: basic Docker objects</li>
+                    <li><span class="blue-bg">Second-level keys</span>: instances of objects</li>
+                    <li>nth-level keys: properties of parent object</li>
+                </ul>
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>A simple docker stack file that uses services, an .env file, a secret and a config is shown here.</li>
+                <li>Stack files are yaml formatted</li>
+                <li>Stack file structure is essentially three-tiered: the top level lists docker objects, like services, configs and secrets shown here.</li>
+                <li>The second level lists instances of these docker objects by name; so here we have a service named 'db', a config named 'initscript', and a secret named 'password'</li>
+                <li>Tertiary and deeper level keys generally define config for the object they sit under.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Swarm Configs</h2>
+        <p>Work through</p> 
+        <ul>
+            <li class='exercise' script='provisioning-swarm-config.md'>Provisioning Swarm Configuration</li>
+        </ul>
+        <p>in the Exercises book.</p>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Service Networking</h2>
+
+        <p>Two questions when networking services:</p>
+        <ul>
+            <li>Is the destination service <span class='keyword'>stateful</span> or <span class='keyword'>stateless</span>?</li>
+            <li>Is the request origin <span class='keyword'>internal</span> or <span class='keyword'>external</span> to your swarm?</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>Now that we've got workload deployed and configured, we'd like to be able to network our services together.</li>
+                <li>Setting up service networking depends on a couple of different design considerations: does it matter to which service container a request gets routed to (ie, is your service stateful), and is the request originating from another container in your Swarm, or is it coming from an external network?</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Service Networking</h2>
+
+        <ul>
+            <li><span class='keyword'>Internal origin</span>: DNS lookup</li>
+            <li><span class='keyword'>External origin</span>: Port mapping</li>
+            <li><span class='keyword'>Stateless destination</span>: VIP routing</li>
+            <li><span class='keyword'>Stateful destination</span>: container IP routing</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>In the case of traffic originating from inside another swarm-managed container, we can rely on DNS lookup of service names, much like what we did when communicating between containers by name. If we're routing traffic in from outside the cluster, we're going to need to listen on a host port for that inbound traffic, and route it appropriately.</li>
+                <li>If the destination of our request is stateless, we can rely on Docker to route the request to any arbitrary container for the service, which it does through a system of virtual IPs. But if the destination service is stateful, we'll need to be able to address requests to specific container IPs.</li>
+                <li>Bear in mind that VIPs are only available on linux and Windows Server 2019.</li>
+            </ul>
+        </aside>
+
+    </section>    
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Internal / Stateless</h2>
+
+        <p>Solution: <span class='keyword'>DNS + VIP</span></p>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/vip-internal.png'></img>
+
+        <aside class='notes'>
+            <ul>
+                <li>The default behavior of all Docker services is VIP based routing.</li>
+                <li>In this case, service names resolve to corresponding virtual IPs. Docker then automatically load balances requests to this virtual IP across the corresponding container IPs.</li>
+                <li>In this way, our application logic doesn't have to do any work at all to load balance across destination service containers; Docker handles all service discovery and all load balancing.</li>
+                <li>The drawbacks of this method are that since it obfuscates destination container IPs from the requester, there's no guarantee that subsequent requests will get served by the same container, making it necessary to design our services to be stateless if they are to receive traffic in this fashion.</li>
+            </ul>
+        </aside>
+
+    </section>    
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Internal / Stateful</h2>
+
+        <p>Solution: <span class='keyword'>DNSRR Endpoints</span></p>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/dnsrr-routing.png' style='width:90%'></img>
+
+        <aside class='notes'>
+            <ul>
+                <li>If we want to control which container traffic is directed to explicitly, we can set our services to resolve in DNS Round Robin mode.</li>
+                <li>Example: any service relying on local volume storage for state persistence</li>
+                <li>In this case, no VIP is created for the service. Instead, service names resolve via DNS to a list of all the A-records (in this case, container IPs) that correspond to containers managed by that service. At that point, it's up to you what you do with this information; Docker doesn't take any further action in how this traffic gets routed.</li>
+                <li>This mode has the advantage of allowing you to guarantee requests are always sent to the same stateful destination container.</li>
+            </ul>
+        </aside>
+
+    </section> 
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>External / Stateless</h2>
+
+        <p>Solution: <span class='keyword'>Swarm L4 Routing Mesh</span></p>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/routing-mesh.png' style='width:70%'></img>
+
+        <aside class="notes">
+            <ul>
+                <li>If we want to route traffic to a service from the outside network, we can't rely on service name DNS resolution. Instead, we must use swarm's Routing Mesh. In this case, every host in the swarm listens on a port assigned to our service. Any traffic received on that port is sent to the virtual IP assigned to that service, which is then dealt with in the exact same manner as internal service traffic routing</li>
+                <li>Similarly to service-level routing internally to the cluster, this has the advantage of handling routing and load balancing for us; it doesn't matter where containers get scheduled in this case, the load balancer can just dumbly fan traffic across the whole cluster and let Docker deal with it.</li>
+                <li>Note this relies on the same VIP architecture as the internal / stateless scenario; therefore, the mesh net is similarly only available on linux and Windows Server 2019.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>External / Stateful</h2>
+
+        <p>Solution: <code>--publish mode=host</code></p>
+
+        <img src='src/modules/fundamentals/swarm-mode/images/host-mode.png' style='width:80%'></img>
+
+        <aside class="notes">
+            <ul>
+                <li>Example: a web tier that uses server-side info to preserve stateful sessions.</li>
+                <li>Finally, if we want to route traffic to specific containers from outside the cluster, we can deploy those containers in endpoint host mode. In this mode, a random host port will forward traffic to a specified container port for each container managed by the service.</li>
+                <li>This has the advantage of letting us do things like sticky sessions for external connections to containers, but the major drawback that our external load balancer must now be scheduler-aware; the LB will need to be reconfigured every time a service container gets rescheduled.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Swarm Routing</h2>
+        <p>Work through</p> 
+        <ul>
+            <li class='exercise' script='routing-to-services.md'>Routing to Services</li>
+        </ul>
+        <p>in the Exercises book.</p>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Managing Applications</h2>
+
+        <p>We have all the components we need to deploy a full application on Swarm, but:</p>
+
+        <ul>
+            <li>How will we scale it?</li>
+            <li>How will we roll out new software versions without downtime?</li>
+            <li>How can we automatically and gracefully roll back failed updates?</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>At this point, we have all the building blocks we need to get started deploying applications on a swarm. But, we haven't yet answered any post-deployment management and operations questions: how can we design our applications to be efficiently scalable? How can we manage their lifecycle of updates with a minimum of downtime, and a graceful rollback policy.</li>
+                <li>These questions are answered both by Swarm tooling, and the design patterns with which we build our applications.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Our Application: Dockercoins</h2>
+
+        <div class='col-6'>
+            <img style="background-color:rgba(0,0,0,0); max-width:80%;" src="src/modules/fundamentals/swarm-mode/images/dockercoins.png" alt="DockerCoins logo" />
+            <p style='font-size: medium !important'>
+                (DockerCoins 2016 logo courtesy of <a href="https://twitter.com/xtlcnslt">@XtlCnslt</a> and <a href="https://twitter.com/ndeloof">@ndeloof</a>. Thanks!)
+            </p>
+        </div>
+
+        <div class='col-6'>
+            <ul>
+                <li>
+                    It is a DockerCoin miner! 💰🐳📦🚢
+                </li>
+                <li>
+                    Dockercoins consists of 5 services working together:
+                </li>
+            </ul>
+            <img src='src/modules/fundamentals/swarm-mode/images/dockercoins-flow.png' style='width:70%'></img>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>In order to illustrate some of these ideas, we'll work with a toy application called Dockercoins.</li>
+                <li>Dockercoins is an example of microservice architecture: the application is comopsed of five different services working together to deliver the desired functionality.</li>
+                <li>Dockercoins' workflow is as follows: the 'worker' service asks for a random number from the random number generator 'rng'. The worker then pushes that random number at a third service called 'hasher', which computes a hash of that number. If the hash starts with 0, that counts as a Dockercoin, in which case it is pushed to a redis queue. Meanwhile, a fifth service 'webui' serves a webpage with a live visualization of the rate of Dockercoins getting pushed to redis.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Managing Microservices</h2>
+
+        <ul>
+            <li>
+                Can scale individual, bottlenecked components
+                <ul>
+                    <li>Spend resources exactly where needed</li>
+                    <li>But, need monitoring hooks to assess specific bottlenecks</li>
+                </ul>
+            </li>
+            <li>
+                Can upgrade components 'independently'
+                <ul>
+                    <li>Patches and upgrades to one component don't get blocked by other teams' release cycles</li>
+                    <li>Still have to be careful that interface between components is stable or backwards compatible</li>
+                </ul>
+            </li>
+            <li><span class='keyword'>Not building for microservices?</span> Can still take advantage of all scaling, roll-out and roll-back features of any orchestrator.</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>The advantage of a good microservice design is the loose coupling between application components. This leads to powerful scaling opportunities, to spend resources only scaling the exact components bottlenecking performance. The flip-side of this though, is that you'll need detailed monitoring information to help you decide exactly where your bottlenecks are.</li>
+                <li>Loose coupling also makes it relatively easy to upgrade components independently, so long as interfaces (APIs, other endpoints) don't get broken.</li>
+                <li>Swarm provides tooling to underwrite all these processes; even if you aren't building a microservice application, a containerized monolith can still benefit from many of these service lifecycle management tools.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Service Update &amp; Rollback</h2>
+
+        <ul>
+            <li>Rolling updates / rollback</li>
+            <li>Configurable parallelism, delay</li>
+            <li>Auto-trigger rollbacks on deployment failure</li>
+            <li>Replacement container start / stop order</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>When it comes time to update a service, Swarm provides configurable strategies for doing so with a minimum of downtime.</li>
+                <li>Updates can be rolled out gradually, while Swarm monitors for failure of new containers and aborts and even rolls back the update after a certain failure threshold.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="src/modules/fundamentals/swarm-mode/images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Swarm Application Upgrades</h2>
+        <p>Work through</p> 
+        <ul>
+            <li class='exercise' script='updating-applications.md'>Updating Applications</li>
+        </ul>
+        <p>in the Exercises book.</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Suggestions for improvements to the dockercoins yaml file:</li>
+                <li>All the services are plugged into the same network; separate networks should be provisioned for groups of interacting services (one for rng to worker, another for worker to hasher etc)</li>
+                <li>All dockercoins containers run unconstrained; a production deployment should apply things like CPU and memory constraints to every container.</li>
+                <li>Worker, rng and hasher components are very chatty; network traffic will be reduced if they are co-located. The same is true for redis and the webserver. If you're extra ambitious and know some kubernetes, try deploying these groups as pods.</li>
+                <li>None of these containers need to run as root; running them as an unprivileged user reduces potential attack surface.</li>
+            </ul>
+        </aside> 
+    </section>
+
+    <section data-background="#112A3B" class="gray_bg">
+        <h2>Swarm Mode Takeaways</h2>
+
+        <ul>
+            <li>Orchestration facilitates treating datacenter as a pool of compute for containers</li>
+            <li>Applications defined as stacks consisting of modular components: services, configs, secrets, networks etc</li>
+            <li>Swarm networking planes build in default mTLS encryption for managers, simple DNS-based service discovery for applications</li>
+            <li>Rich set of operational control features for scheduling control, resource allocation, and application upgrades</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>To summarize, Swarm like any orchestrator tries to enable us to think about our clusters like a pool of compute for containers rather than a set of individual hosts.</li>
+                <li>Abstractions like services and stacks are optimized for scalability and resilience; by creating many replicas routed to transparently by Swarm's networking layer, we're able to think design applications that consist of many expendable processes, rather than individual critical ones.</li>
+            </ul>
+        </aside>
+
+    </section>
+
+    <section data-background="#112A3B" class="blue_bg">
+        <h2>Further Reading</h2>
+
+        <ul>
+            <li>Getting started with Docker swarm: <a href="http://dockr.ly/2vUFWTA">http://dockr.ly/2vUFWTA</a></li>
+            <li>Swarm mode overview: <a href="http://dockr.ly/2jh11Vd">http://dockr.ly/2jh11Vd</a></li>
+            <li>Get started with multi-host networking: <a href="http://dockr.ly/2gtqRms">http://dockr.ly/2gtqRms</a></li>
+            <li>Manage sensitive data with Docker secrets: <a href="http://dockr.ly/2vUNbuH">http://dockr.ly/2vUNbuH</a></li>
+            <li>Stack file reference: <a href='https://dockr.ly/2iHUpeX'>https://dockr.ly/2iHUpeX</a></li>
+        </ul>
+    </section>
+</section>
