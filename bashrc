@@ -3,10 +3,6 @@
 readonly FLAG_DRYRUN=false
 readonly DOCKER_PRESENT_SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-for functionFile in ${DOCKER_PRESENT_SCRIPT_DIR}/bash-script-collection/functions/*.sh; do 
-  source ${functionFile} >/dev/null
-done
-
 # docker-present
 function docker-present () {
   execute "docker run -i --rm -v /var/run/docker.sock:/var/run/docker.sock --name docker-present gepardec/presentations -p 8080"
