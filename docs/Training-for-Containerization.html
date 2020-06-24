@@ -1624,7 +1624,55 @@ VOLUME ["c:/data6", "c:/data7"]
     </section>
 
 </section>
-<section class="no_bg">
+<section>
+    <section class="no_bg">
+        <h2>Wrap Up 1 - Spring Boot</h2>
+    </section>
+    <section data-background="#00a2a1" class="green_bg">
+        <h2>Exercise Instructions</h2>
+        <ul>
+            <li>Goal: Build a docker image that runs a Java application</li>
+            <li>Clone the git repository at <a href="https://github.com/ckaserer/java-helloworld">https://github.com/ckaserer/java-helloworld</a></li>
+            <li>Build the application using <code>gradle bootJar</code> and find the resulting fat-jar file at <code>build/libs</code> (already done for you).</li>
+            <li>You can run the java application locally with <code>java –jar rest-service-0.0.1-SNAPSHOT.jar</code>, this starts an application server on port 8080. Check it in your browser via <a href="http://127.0.0.1:8080/greeting">http://127.0.0.1:8080/greeting</a> (respectively with your AWS instance public dns).</li>
+        </ul>
+        <br>
+        <br>
+        <h2 class="timer"></h2>
+    </section>
+    
+    <section data-background="#00a2a1" class="green_bg">
+        <h2>Solution Hints</h2>
+        <ul>
+            <li>Build the application outside of the container (already done and checked into git).</li>
+            <li>Find a suitable docker base image, that has a JRE installation.</li>
+            <li>Use both the <code>CMD</code> and the <code>ENTRYPOINT</code> instructions.</li>
+            <li>Run two instances of the container – what do you have to take care of? Make sure both instances are reachable via browser.</li>
+        </ul>
+        <br>
+        <br>
+        <h2 class="timer"></h2>
+    </section>
+    
+    <section class="no_bg">
+        <h2>Solution</h2>
+        <p>Sample Dockerfile</p>
+        <div class='pre'>FROM anapsix/alpine-java
+LABEL MAINTAINER=clemens.kaserer@gepardec.com
+WORKDIR /data
+EXPOSE 8080
+COPY build/libs/rest-service-0.0.1-SNAPSHOT.jar \
+     rest-service-0.0.1-SNAPSHOT.jar
+CMD ["-jar", "rest-service-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java"]</div>            
+        <p>Solution Commands</p>
+            <ul>
+                <li>docker build -t spring_boot_example .</li>
+                <li>docker run –d –p 80:8080 spring_boot_example</li>
+            </ul>
+
+    </section>
+</section><section class="no_bg">
     <h2>Containerization Fundamentals Conclusion: Any App, Anywhere.</h2>
 
     <ul>
@@ -2922,6 +2970,76 @@ Swarm: active
             </ul>
             
         </aside>
+    </section>
+</section><section>
+    <section class="no_bg">
+        <h2>Wrap Up 2 - Sonarqube</h2>
+    </section>
+    <section data-background="#00a2a1" class="green_bg">
+        <h2>Exercise Instructions</h2>
+        <ul>
+            <li>Setup a Sonarqube server that listens on port 9000</li>
+            <li>Connect it to a persistent database<br>i.e. if you ‚docker rm –f‘ your Sonarqube container and run a new one, no data is lost</li>
+            <li>Use postgresql and persist it‘s data on the host filesystem using volumes</li>
+            <li>Verify e.g. by creating a user via Sonarqube UI, remove the container and run a new one – is the user still present?</li>
+            <li>Check that Sonarqube is really using your postgresql database
+            </li>
+            <li><b>Hint</b>: use docker-compose</li>
+        </ul>
+        <br>
+        <br>
+        <h2 class="timer"></h2>
+        <aside class="notes">
+            Check that Sonarqube is really using your postgresql database: 
+                <ul>
+                    <li>login to postgres container</li>
+                    <li>psql sonar sonar</li>
+                    <li>\l - list all existing databases</li>
+                    <li>\dt - list all tables of databases</li>
+                    <li><b>Hint</b>: Postgresql tips at http://www.unixwitch.de/de/sysadmin/tools/postgres</li>
+                </ul>
+        </aside>
+    </section>
+    
+    <section class="no_bg">
+        <h2>Solution</h2>
+        <div class='pre' style="font-size:small;">version: "2"
+services:
+  sonarqube:
+    image: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - sonarnet
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonar
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+
+  db:
+    image: postgres
+    networks:
+      - sonarnet
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/datanetworks:
+    sonarnet:
+      driver: bridge
+
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_bundled-plugins:
+  postgresql:
+  postgresql_data:</div>
+
     </section>
 </section><section class="no_bg">
     <h2>Containerization Training</h2>
