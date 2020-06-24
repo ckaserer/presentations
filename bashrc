@@ -46,6 +46,13 @@ function docker-present-202002-iaam () {
 readonly -f docker-present-202002-iaam
 [ "$?" -eq "0" ] || return $?
 
+# docker-present-Training-for-Containerization
+function docker-present-Training-for-Containerization () {
+  execute "docker run -d -p 8080:8080 --entrypoint=/opt/revealjs/bin/present.py --name docker-present-Training-for-Containerization gepardec/presentations Training-for-Containerization 8080"
+}
+readonly -f docker-present-Training-for-Containerization
+[ "$?" -eq "0" ] || return $?
+
 # docker-present-publish-revealjs
 function docker-present-publish-revealjs () {
   set -e
