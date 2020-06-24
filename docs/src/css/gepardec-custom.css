@@ -96,7 +96,7 @@ p { font-family: Barlow_Regular !important; font-size: 22px !important; font-wei
 li { font-family: Barlow_Regular !important; font-size: 22px !important; font-weight: 100 !important; }
 
 .reveal pre, div.pre { 
-  display: inline-block;
+  display: table;
   background-color: rgb(240, 240, 240);
   text-align: left;
   color: black; 
