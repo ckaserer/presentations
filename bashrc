@@ -78,7 +78,7 @@ function docker-present-publish () {
   local name=${2:-${1}}
   set -e
   docker-present-build
-  docker-present-${presentation}
+  docker run -d -p 8080:8080 --entrypoint=/opt/revealjs/bin/present.py --name docker-present-${presentation} gepardec/presentations ${presentation} 8080
   execute "docker cp docker-present-${presentation}:/opt/revealjs/src/modules/${presentation} ${DOCKER_PRESENT_SCRIPT_DIR}/docs/src/modules/"
   execute "docker cp docker-present-${presentation}:/opt/revealjs/index.html ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${name}.html"
   # execute "docker run --rm --net=host -t -v ${DOCKER_PRESENT_SCRIPT_DIR}:/slides astefanutti/decktape --size=3840x2160 http://localhost:8080 ${DOCKER_PRESENT_SCRIPT_DIR}/docs/${name}.pdf"
