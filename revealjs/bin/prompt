@@ -28,7 +28,7 @@ function run() {
              --entrypoint="/opt/revealjs/bin/present.py" \
              --volumes-from ${HOSTNAME} \
              --name=docker-present-"${1}" \
-             gepardec/presentations $1 $2
+             ghcr.io/ckaserer/presentations:latest $1 $2
   exit 0
 }
 
