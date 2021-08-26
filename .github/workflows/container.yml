@@ -71,7 +71,8 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Run make.sh
-        run: chmod 777 ./make.sh && ./make.sh && git config --global http.version HTTP/1.1
+        run: chmod 777 ./make.sh && ./make.sh && git config --global http.postBuffer 1048576000
+        # https://stackoverflow.com/questions/59282476/error-rpc-failed-curl-92-http-2-stream-0-was-not-closed-cleanly-protocol-erro
 
       - name: Publish
         uses: s0/git-publish-subdir-action@develop
