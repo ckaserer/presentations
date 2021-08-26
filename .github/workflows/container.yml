@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Run make.sh
-        run: .ci/make.sh
+        run: chmod 777 .ci/make.sh && .ci/make.sh
 
       - name: Publish
         uses: s0/git-publish-subdir-action@develop
