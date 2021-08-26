@@ -6,10 +6,12 @@
         <h2>gepard who?</h2>
     </section>
     <section>
-        </img><h2>That's us</h2>
-        <table>
+        <table class="reveal">
+            <tr colspan="3">
+                <h2>That's us</h2>
+            </tr>
             <tr>
-                <td  valign="top">
+                <td rowspan="3" style="vertical-align:middle; text-align:center;">
                     <ul>
                         <li>office: vienna / linz</li>
                         <li>size: ~ 40 people</li>
@@ -22,14 +24,22 @@
                         </li>
                     </ul>
                 </td>
-                    <td valign="top">
-                        <img src='images/team.jpg' width=450px></img>
-                    </td>
-                    <td valign="top" align="center">
-                        <img src='images/rh_premium_partner.jpg' width=150px><br>
-                        <img src='images/jboss.svg' width=150px><br>
-                        <img src='images/openshift.svg' width=100px>
-                    </td>
+                <td rowspan="3"style="vertical-align:middle; text-align:center;">
+                    <img src='images/team.jpg' width=450px>
+                </td>
+                <td valign="top" align="center">
+                    <img src='images/rh_premium_partner.jpg' width=150px>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" align="center">
+                    <img src='images/jboss.svg' width=150px>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" align="center">
+                    <img src='images/openshift.svg' width=100px>
+                </td>
             </tr>
         </table>
         <p class="fragment" data-fragment-index="1">..and we are extremly good at it</p>
@@ -105,7 +115,6 @@
         <ul>
             <li>Assess the advantages of a containerized software development &amp; deployment</li>
             <li>Use Docker engine features necessary for running containerized applications</li>
-            <li>Utilize Kubernetes orchestrators to deploy, maintain, and scale a distributed application</li>
         </ul>
     </section>  
 </section>

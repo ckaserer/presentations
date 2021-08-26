@@ -7,8 +7,6 @@ name: Container Build
       - main
     tags-ignore:
       - '*'
-    paths-ignore:
-      - '.github/workflows/github-page.yml'
 
 env:
   REGISTRY: ghcr.io
@@ -21,7 +19,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -65,13 +62,33 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      
+  github-page:
+    name: Release Github Page
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Run make.sh
+        run: .ci/make.sh
 
+      - name: Publish
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: docs # The branch name where you want to push the assets
+          FOLDER: docs # The directory where your assets are generated
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Build: ({sha}) {msg}" # The commit message
+          
   notify:
     name: Slack Notifications
     runs-on: ubuntu-latest
     if: ${{ failure() }}
     needs:
       - build
+      - github-page
     steps:
       - name: Notify Slack channel on failure
         uses: rtCamp/action-slack-notify@v2

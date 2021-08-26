@@ -3,12 +3,8 @@ Training-for-Containerization/02-docker-story
 Training-for-Containerization/03-container-basics
 Training-for-Containerization/04-creating-images
 Training-for-Containerization/05-volumes 
+Training-for-Containerization/06-system-commands
+Training-for-Containerization/07-container-ending
 Training-for-Containerization/wrapup-1
-Training-for-Containerization/06-container-ending
-Training-for-Containerization/07-networking-basics
-Training-for-Containerization/09-kubernetes
-Training-for-Containerization/10-orchestration-ending
-Training-for-Containerization/11-system-commands
-Training-for-Containerization/13-compose
-Training-for-Containerization/wrapup-2
-Training-for-Containerization/14-ending
+Training-for-Containerization/08-ending
+Training-for-Containerization/09-compose
