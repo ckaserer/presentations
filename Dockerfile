@@ -30,3 +30,4 @@ ENTRYPOINT ["/opt/revealjs/bin/prompt"]
 
 ARG BREAK=no
 COPY . /opt/revealjs/
+RUN chmod 777 /opt/revealjs/bin/*
