@@ -32,4 +32,4 @@ docker container rm -f presentation >/dev/null
 docker run -d --entrypoint=/opt/revealjs/bin/present.py --name presentation presentations index 8080
 docker cp presentation:/opt/revealjs/index.html ${TOP_LEVEL_DIR}/docs/index.html
 
-rm -rf ${TOP_LEVEL_DIR}/docs/.git
+rm -rf ${TOP_LEVEL_DIR}/docs/{.git,.github}
