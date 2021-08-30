@@ -18,6 +18,7 @@ readonly SCRIPT_HOME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 docker build -t presentations .
 docker container rm -f presentation >/dev/null
 docker run -d --entrypoint=/opt/revealjs/bin/present.py --name presentation presentations Training-for-Containerization 8080
+mkdir docs && chmod 777 docs
 docker cp presentation:/opt/revealjs docs/
 
 for presentation in src/presentations/*; do
