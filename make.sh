@@ -14,7 +14,7 @@ readonly SCRIPT_HOME=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ########## 
 # SOURCE #
 ##########
-set -e
+set -ex
 
 rm -rf docs
 docker build -t presentations .
@@ -24,11 +24,12 @@ docker cp presentation:/opt/revealjs/ docs
 chmod -R 777 docs
 
 for presentation in src/presentations/*; do
-    echo $(basename $presentation)
+    echo "Begin: $(basename $presentation)"
     docker container rm -f presentation >/dev/null
     docker run -d -p 8080:8080 --entrypoint=/opt/revealjs/bin/present.py --name presentation presentations $(basename $presentation) 8080
     docker cp presentation:/opt/revealjs/index.html docs/$(basename $presentation).html
     docker run --rm --net=host -t -v $(pwd):/slides astefanutti/decktape:3.1.0 reveal --size=1920x1080 http://localhost:8080 docs/$(basename $presentation).pdf
+    echo "End: $(basename $presentation)"
 done
 
 docker container rm -f presentation >/dev/null
