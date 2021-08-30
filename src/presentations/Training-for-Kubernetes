@@ -1,7 +1,7 @@
 Training-for-Kubernetes/01-welcome
-Training-for-Kubernetes/02-docker-story
-Training-for-Kubernetes/09-compose
-Training-for-Kubernetes/wrapup-2
-Training-for-Kubernetes/09-kubernetes
+Training-for-Containerization/02-docker-story
+Training-for-Kubernetes/03-compose
+Training-for-Kubernetes/04-wrapup-compose
+Training-for-Kubernetes/05-kubernetes
 Training-for-Kubernetes/10-orchestration-ending
-
+Training-for-Kubernetes/14-ending
