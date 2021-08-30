@@ -360,7 +360,6 @@
             <li>Intended for secure info:
                 <ul>
                     <li>Provisioned in a tmpfs, never written to disk</li>
-                    <li>Encrypted by UCP on masters automatically</li>
                 </ul>
             </li>
             <li><span class='keyword'>Warning</span>: secrets are recoverable with <code>kubectl get secrets</code> from masters, and potentially with <code>docker container inspect</code> from host workers</li>
