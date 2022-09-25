@@ -1,0 +1,206 @@
+<section>
+    <section class="no_bg">
+        <h2>Introduction to Kubernetes</h2>
+    </section>
+
+    <section class="no_bg">
+        <h2>Discussion: Any App, Anywhere?</h2>
+
+        <p>Containers are portable. What does this imply about the best ways to manage a containerized data center?</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Lead class to consider the advantage of letting containers get scheduled anywhere, rather than controlling exactly where they get scheduled. Then, explore what the consequences of what spreading containers across multiple hosts are (need for management, control and data planes; need for some special-case control over scheduling decisions).</li>
+                <li>Hint questions if the class is stuck:</li>
+                <li>In general, does it matter where a given container gets scheduled? Why or why not? (conclude that in most cases, it doesn't matter, but there may be special cases such as needing specific hardware, or being sensitive to resource availability).</li>
+                <li>If we're scheduling containers on any arbitrary host in our datacenter, we're going to need some sort of cluster manager in order to administrate all these hosts and containers. How will we provide service discovery? (Consider things like peer-to-peer service discovery (no choke points but could generate a lot of traffic), hub and spoke distribution (potentially less traffic but single points of failure), lookup from a kv store (just-in-time lookup could minimize traffic but might block traffic depending on implementation). Others?)</li>
+                <li>Once we've solved the service discovery problem, how are we going to get packets from one host to another? Recall that so far, we've only seen linux bridges moving packets around at layer 2.</li>
+                <li>Enabling this full-datacenter scheduling and solving the corresponding and communication challenges are the fundamental responsibilities of any production-ready container orchestrator.</li>
+            </ul>
+        </aside>
+    </section>
+    
+    <!--
+    <section class="no_bg">
+        <h2>Discussion: Container Communication</h2>
+
+        <p>Suppose you have two services you want to guarantee can reach each other on the same host, to eliminate network latency. How would you do this in Swarm?</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Concrete example: an API tier that needs to hit a database tier - don't want to wait for network latency between the two.</li>
+                <li>Entertain suggestions from the class for a while until concluding that there's no way to do this with swarm services. Kubernetes solves the same fundamental problems as any orchestrator, but gives an alternative networking and scheduling model that supports different use cases than Swarm.</li>
+            </ul>
+        </aside>
+
+    </section>
+    -->
+
+    <section class="no_bg">
+        <h2>Learning Objectives</h2>
+        
+        <p>By the end of this module, learners will be able to</p>
+
+        <ul>
+            <li>Understand the components and roles of Kubernetes masters and nodes</li>
+            <li>Identify and explain the core Kubernetes objects (Pod, ReplicaSet, Deployment, Service, Volumes)</li>
+            <li>Provision configuration via configMaps and secrets</li>
+            <li>Explore the Kubernetes networking model</li>
+        </ul>
+    </section> 
+
+    <section class="no_bg">
+        <h2>Orchestrator Goals</h2>
+
+        <p><span class='keyword'>Top-line goal:</span> operate a datacenter like a <span class='keyword'>pool of compute resources</span> (not individual machines). This requires</p>
+
+        <ul>
+            <li>Add / remove compute resources securely and easily</li>
+            <li>Schedule containers across the cluster transparently</li>
+            <li>Streamline container-to-container communication (service discovery, load balancing and routing)</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>The core goal of any orchestrator is to let you treat a bunch of computers like a pool of compute resources ready to support your containerized workloads; the fact that containers are so portable and work the same way anywhere means we generally don't have to care too much what specific node they get scheduled on. Instead, we'd like to delegate that decision to our orchestrator, and think about our cluster as a whole rather than as a lot of individual machines.</li>
+                <li>In order to actually do that, there are some minimal requirements any orchestrator will need to satisfy:</li>
+                <li>Not only do we have to be able to add new nodes to our cluster, this has to be done in a way that is secure at join time, and secure in communication long term.</li>
+                <li>Our orchestrator will need to be able to schedule workload anywhere in the cluster; this is perhaps the easiest part, thanks to the portability of containers. Beyond this, our orchestrator should also be responsible for automatically maintaining that workload as much as possible.</li>
+                <li>Finally, with our applications potentially divided among many containers and hosts, we'll need our orchestrator to help us communicate between these containers, by facilitating service discovery, load balancing and routing appropriate to the networking needs of each of our applications.</li>
+                <li>There are of course many more things an orchestrator could do for us, but these are the core concerns that any feasible orchestrator must do.</li>
+            </ul>
+        </aside>
+    </section>
+    <section class="no_bg">
+        <h2>Pets Versus Livestock</h2>
+
+        <div class='row'>
+            <div class='col-4'>
+                <ul>
+                    <li>Kubernetes reschedules exited containers automatically</li>
+                    <li style='margin-right:1em'>When a container becomes unhealthy, <span class='keyword'>kill it and get a new one</span>.</li>
+                </ul>
+            </div>
+            <div class='col-8'>
+                <img src='images/petsvslivestock.png' style="background:none !important;">
+                 <figcaption style="font-size:50%; line-height:0; text-align:center; margin-top: 1em;">Dog photo <a href="https://www.flickr.com/photos/jeffreyww/4975374886/in/photolist-8zE6BC-c9tWCb-c9tXfd-5a7MyF-c3KLuL-5dDirY-axQTra-c9sgSG-amLcYQ-c3KFn7-c9tXo1-c9tWc9-dHZUz-rgAhXo-rW2iU1-KSM6e-pSCtLH-qF7ff3-5Sqz9E-fmSgbs-7KxKak-8TZKk8-6gVmH9-ehfejV-ehtrx4-bD41t2-aiMDUn-8U3iS9-DacH2L-63pHfi-8TZfEH-93nazZ-dmdgPv-85pGjL-8p9Un7-8p9Ui3-5a7EUt-8qP6BK-345kg4-8BRoqc-65p6Gq-YkNMy4-8J4rLP-o2EFGs-H43vF2-8U3jm3-8U48Fb-Si8zjf-8U48pY-2dBGh2">jeffreyw</a>; Livestock photo <a href="https://www.flickr.com/photos/pauljill/28350728097/in/photolist-KcfTJR-a38m8q-tNhS3j-27TRuXP-Ssmqi7-9uD1Xw-PyTy8A-4D77Jm-8pSu5Q-W3FcwF-ZypKkz-Ue3XvX-VP9jfs-28pSeWb-UP2ryi-LQt3rp-UT391d-MEqR17-Y7sweh-8X7vrU-Y7FJfm-QBydX8-FgTo81-XZr5cN-SPXUwJ-rhVK-bmDYEB-dPFa64-287ET1L-UZyj2p-TcrWzo-ZzPMvn-8JAYv1-48S7W5-8C3qEJ-J6FjAR-urgqiC-f4E4kU-DTLaj9-24prtP3-6P3yWW-28ynA9Q-UPjBk8-UyDxAW-XwKZRW-24HpVUY-ehvBKf-HbXbmw-BSCQ2s-8Uz7pW"> Paul Asman, Jill Lenoble</a>; images <a href='https://creativecommons.org/licenses/by/2.0/'>CC-BY 2.0</a></figcaption>
+            </div>
+        </div>
+
+        <aside class='notes'>
+            <ul>
+                <li>In the exercises and demos so far, we've seen how Swarm will reschedule containers after they exit. This is a crucial feature for how we think about managing orchestrated container workloads.</li>
+                <li>We often describe this mindset as livestock management, versus pet care. With a pet, we concern ourselves with every injury and illness, and attempt to keep our pet healthy and happy as long as possible; this is the wrong way to think about troubleshooting containers. As any rancher knows, what matters is not the health of an individual livestock animal, but the health of the herd. If one animal gets sick, the right course of action is to kill it and get a new one. The same is true with containers; if a container scheduled by swarm misbehaves, the first course of action to take is to kill it and let Swarm reschedule it.</li>
+                <li>If pathologies persist after rescheduling fresh containers, then a more serious debugging effort makes sense - but not when a single container gets rescheduled or has to be restarted.</li>
+                <li>Bear in mind this is usually a big change from how we thought about managing VMs - VMs were more like pets we want to keep alive. Bringing the same management and troubleshooting mindset to the containerization world is a common mistake that causes new container users a lot of unnecessary pain.</li>
+            </ul>
+        </aside>
+    </section> 
+
+    <section class="no_bg">
+        <h2>Kubernetes Master</h2>
+        <div class="row">
+            <div class="col-7">
+                <p>Important Components</p>
+                <ul>
+                    <li><span class="keyword">API Server:</span> Frontend into Kubernetes control plane</li>
+                    <li><span class="keyword">Cluster Store:</span> Config and state of cluster</li>
+                    <li><span class="keyword">Controller Manager:</span> Assert desired state</li>
+                    <li><span class="keyword">Scheduler:</span> Assigns workload to nodes</li>
+                </ul>
+            </div>
+            <div class="col-5">
+                <img src="images/master.png" title="master" style="margin-left: 20px;">
+            </div>
+        </div>
+        <aside class="notes">
+            <ul>
+                <li>The API Server (apiserver) is the frontend into the Kubernetes control plane. It exposes a RESTful API that preferentially consumes JSON. We POST manifest files to it, these get validated, and the work they define gets deployed to the cluster.</li>
+                <li>The config and state of the cluster gets persistently stored in the cluster store, which is the only stateful component of the cluster and is vital to its operation - no cluster store, no cluster!<br> The cluster store is based on etcd, the popular distributed, consistent and watchable key-value store. As it is the single source of truth for the cluster, you should take care to protect it and provide adequate ways to recover it if things go wrong.</li>
+                <li>The controller manager (kube-controller-manager) implements things like the node controller, endpoints controller, namespace controller etc. They tend to sit in loops and watch for changes – the aim of the game is to make sure the current state of the cluster matches the desired state</li>
+                <li>At a high level, the scheduler (kube-scheduler) watches for new workloads and assigns them to nodes. Behind the scenes, it does a lot of related tasks such as evaluating affinity and anti-affinity, constraints, and resource management.</li>
+                <li>Note that directly analogous components appear in a Swarm manager; in Swarm's case they are integrated directly into the Docker engine, but the same roles and responsibilities appear in both. This is the first example of what we meant by Kube being more modularly designed.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Kubernetes Node</h2>
+        <div class="row">
+            <div class="col-7">
+                <ul>
+                    <li><span class="keyword">Kubelet:</span> Kubernetes Agent</li>
+                    <li><span class="keyword">Container Engine:</span> Host Containers</li>
+                    <li><span class="keyword">Network Proxy:</span> Networking &amp; Load Balancing</li>
+                </ul>
+            </div>
+            <div class="col-5">
+                <img src="images/node.png" title="master" style="margin-left: 20px;">
+            </div>
+        </div>
+        <aside class="notes">
+            <ul>
+                <li>Kubelet: This is the main Kubernetes agent that runs on all cluster nodes. When kubelet is installed on a Linux host then it registers the host with the cluster as a node. It then watches the API server for new work assignments. Any time it sees one, it carries out the task and maintains a reporting channel back to the master.</li>
+                <li>If the kubelet can’t run a particular work task, it reports back to the master and lets the control plane decide what actions to take. For example, if a Pod fails on a node, the kubelet is not responsible for restarting it or finding another node to run it on. It simply reports back to the master. The master then decides what to do.</li>
+                <li>Container Engine: The Kubelet needs to work with a container runtime to do all the container management stuff – things like pulling images and starting and stopping containers. More often than not, the container runtime that Kubernetes uses is Docker. In the case of Docker, Kubernetes talks natively to the Docker Remote API.</li>
+                <li>More recently, Kubernetes has released the Container Runtime Interface (CRI). This is an abstraction layer for external (3rd-party) container runtimes to plug in to. Basically, the CRI masks the internal machinery of Kubernetes and exposes a clean documented container runtime interface. The CRI is now the default method for container runtimes to plug-in to Kubernetes. The containerd CRI project is a community-based open-source project porting the CNCF containerd runtime to the CRI interface.</li>
+                <li>Kube Proxy: The last piece of the puzzle is the kube-proxy. This is like the network brains of the node. For one thing, it makes sure that every Pod gets its own unique IP address. It also does lightweight load-balancing on the node.</li>
+            </ul>
+        </aside>
+    </section>
+        
+    <section class="no_bg">
+        <h2>Architecture</h2>
+        <img src="images/architecture.png" title="Architecture">
+        <aside class="notes">
+            <ul>
+                <li>In this schema we have one master and 3 nodes. On the master we find the 4 services that we discussed earlier: API service, scheduler, controller manager and cluster storage</li>
+                <li>On each of the nodes we have kubelet, Kubernetes proxy and the container host such as containerd. The container host runs containers C1, ..., Cx</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section data-background="#340B65" class="green_bg">
+        <h2><img src="images/icon_task.png" class="moby_icon" alt="icon">Instructor Demo: Kubernetes Basics</h2>
+        
+        <p>See the demo</p> 
+        
+        <ul>
+            <li class='demo' script='kubernetes-demo.md'>Kubernetes Basics</li>
+        </ul>
+
+        <p>In the Exercises book.</p>
+    </section> 
+
+    
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Installing Kubernetes</h2>
+        
+        <p>Work through</p>
+
+        <ul>
+            <li class='exercise' script='kube-install.md'>Installing Kubernetes</li>
+        </ul>
+
+        <p>in the Exercises book.</p>
+        <h2 class="timer"></h2>
+
+    </section>
+
+    <section class="no_bg">
+        <h2>Further Reading</h2>
+        <ul>
+            <li>Docker &amp; Kubernetes: <a href="https://www.docker.com/kubernetes">https://www.docker.com/kubernetes</a></li>
+            <li>Official Kubernetes Docs: <a href="https://kubernetes.io/docs">https://kubernetes.io/docs</a></li>
+            <li>Tutorials: <a href="http://bit.ly/2yLGn61">http://bit.ly/2yLGn61</a></li>
+            <li>Interactive Tutorials: <a href="https://bit.ly/2rdwIVZ">https://bit.ly/2rdwIVZ</a></li>
+            <li>Understanding Kubernetes Networking: <a href="http://bit.ly/2kdI1qQ">http://bit.ly/2kdI1qQ</a></li>
+            <li>Kubernetes the Hard Way: <a href="http://bit.ly/29Dq4wC">http://bit.ly/29Dq4wC</a></li>
+        </ul>
+        <aside class='notes'>
+            <ul>
+                <li>Additional resources about Kubernetes</li>
+            </ul>
+        </aside>
+    </section>
+</section>

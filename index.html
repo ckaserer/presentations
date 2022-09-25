@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+	<head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155731101-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-155731101-1');
+        </script>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        
+        <title>Presentation</title>
+
+        <meta name="description" content="Presentation">
+        <meta name="author" content="Clemens Kaserer">
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="src/css/general.css" id="theme">
+        <link rel="stylesheet" href="src/css/custom.css">
+        <link rel="stylesheet" href="src/css/cusotm-code.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'src/css/print/pdf.css' : 'src/css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+        
+        <!--img src="images/logo.png" style="width: auto; height: 50px; position: fixed; top: 30px; right: 30px; z-index: -9999;" alt="logo"-->
+        <!--<p style="font-size:12px !important; z-index:10; color:rgb(0, 0, 0); position: fixed; bottom: 30px; left: calc(50% - 8em);"><i>#BottomBannerText</i></p>-->
+		<div class="reveal">
+            <div class="slides">
+                <section>
+    <section class="no_bg">
+        <div class="row">
+            <div class="col-6">
+                <h2>Training</h2>
+                <ul>
+                    <li><a href="Training-for-Containerization.html">Containerization Training</a></li>
+                    <li><a href="Training-for-Kubernetes.html">Kubernetes Training</a></li>
+                </ul>
+            </div> 
+            <div class="col-6">
+                <h2>Workshops</h2>
+                <ul>
+                    <li>Comming Soon</li>
+                </ul>
+            </div> 
+        </div>
+    </section>
+</section>
+            </div>
+        </div>
+
+        <script>
+
+            // Full list of configuration options available at:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+
+            });
+
+        </script>
+
+    </body>
+</html>

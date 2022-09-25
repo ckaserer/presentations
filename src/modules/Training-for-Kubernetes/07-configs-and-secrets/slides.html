@@ -1,0 +1,85 @@
+<section>
+    <section class="no_bg">
+        <h2>Configuration & Secrets</h2>
+    </section>
+
+    <section class="no_bg">
+        <h2>Configuration</h2>
+
+        <p>Applications typically need environment-specific config:</p>
+        <ul>
+            <li>Environment variables</li>
+            <li>Configuration files</li>
+            <li>Non-sensitive info (ports, usernames, endpoints)</li>
+            <li>Sensitive info (passwords, access tokens, keys)</li>
+        </ul>
+
+        <p>Config should be <span class='keyword'>decoupled</span> from pod definition and <span class='keyword'>portable</span> across the cluster.</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>In addition to scheduling workload as containers and pods, we will typically also need to provide configuration info for our applications.</li>
+                <li>We'd like to be able to define the config in a way that keeps it well separated from the definition of our pods, so that the same pods and deployments can be migrated across environments without changing their definition at all; we should be able to swap out modular configuration objects to completely capture changes in config.</li>
+                <li>Also, these modular configuration objects need to be managed by our orchestrator so they can be as portable as our pods themselves, able to be provisioned anywhere in our cluster.</li>
+            </ul>
+        </aside>
+
+    </section>
+
+    <section class="no_bg">
+        <h2>ConfigMaps</h2>
+
+        <ul>
+            <li>Collections of key/value pairs, or text files</li>
+            <li>Provisioned to containers via env vars or volume mounts</li>
+            <li>Appropriate for low/no security config</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>For any non-sensitive configuration information, a configMap satisfies our desires for decoupled, portable configuration.</li>
+                <li>ConfigMaps can be defined as lists of key/value pairs, which can be used to populate environment variables in containers, or as lists of files which can be used to populate volume mounts.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Secrets</h2>
+
+        <ul>
+            <li>Defined and provisioned similarly to configMaps (env vars or volume mounts)</li>
+            <li>Intended for secure info:
+                <ul>
+                    <li>Provisioned in a tmpfs, never written to disk</li>
+                </ul>
+            </li>
+            <li><span class='keyword'>Warning</span>: secrets are recoverable with <code>kubectl get secrets</code> from masters, and potentially with <code>docker container inspect</code> from host workers</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>For config that requires higher security guarantees, Kubernetes provides a construct parallel to configMaps called secrets.</li>
+                <li>Secrets are used similarly to configMaps, in that they are defined separately from pods, and can populate environment variables and mounted files in a running container. Secrets are not, however, written to disk, and are deleted from the tmpfs they are stored in on worker nodes once the container consuming them is deleted.</li>
+                <li>Furthermore, UCP sets up default Kube secret encryption on install via the aescbc provider discussed at <a href="https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/"></a>this site.</li>
+                <li>Be aware that anyone with `kubectl get secrets` permissions on your cluster can recover the value of a secret from a master. Secrets can also be exposed via environment variables visible through `docker container inspect` on nodes hosting pods that consume a secret as an environment variable. Therefore, while secrets improve the security posture of sensitive information, proper RBAC and limited access to cluster nodes is still crucial for security.</li>
+            </ul>
+        </aside>
+    </section>   
+    
+    <section class="no_bg">
+        <h2>Further Reading</h2>
+        <ul>
+            <li>Docker &amp; Kubernetes: <a href="https://www.docker.com/kubernetes">https://www.docker.com/kubernetes</a></li>
+            <li>Official Kubernetes Docs: <a href="https://kubernetes.io/docs">https://kubernetes.io/docs</a></li>
+            <li>Tutorials: <a href="http://bit.ly/2yLGn61">http://bit.ly/2yLGn61</a></li>
+            <li>Interactive Tutorials: <a href="https://bit.ly/2rdwIVZ">https://bit.ly/2rdwIVZ</a></li>
+            <li>Understanding Kubernetes Networking: <a href="http://bit.ly/2kdI1qQ">http://bit.ly/2kdI1qQ</a></li>
+            <li>Kubernetes the Hard Way: <a href="http://bit.ly/29Dq4wC">http://bit.ly/29Dq4wC</a></li>
+        </ul>
+        <aside class='notes'>
+            <ul>
+                <li>Additional resources about Kubernetes</li>
+            </ul>
+        </aside>
+    </section>
+</section>

@@ -1,0 +1,110 @@
+<section>
+    <section>
+        <h2>How to survive</h2>
+    </section>
+
+    <section>
+        <table>
+            <tr>
+                <td>ansible + molecule <font color="#f0d200">x</font> python</td>
+                <td>2.7 - production</td>
+            </tr>
+        </table>
+        <aside class="notes">
+            wie aus dem Fenster schauen um das Wetter zu beurteilen.
+            ich weiß nicht wie das Wetter heute vor 3 Monaten war, oder morgen sein wird.
+        </aside>
+    </section>
+
+    <section>
+        <table>
+            <tr>
+                <td rowspan="3">ansible + molecule <font color="#f0d200">x</font> python</td>
+                <td>2.5 - backward compatibility</td>
+            </tr>
+            <tr>
+                <td>2.7 - production</td>
+            </tr>
+            <tr>
+                <td>3.8 - forward compatibility</td>
+            </tr>
+        </table>
+    </section>
+                        
+    <section>
+        <img src="images/tox.png" width="200px"> <br>
+        <ul>
+            <li>virtualenv management and test command line tool</li>
+            <li>vision: standardize testing in Python</li>
+        </ul>
+    </section>  
+
+    <section>
+        Survival Strategy<br><br>
+        <table>
+            <tr>
+                <td valign="top">
+                    <div style="position:relative; width:250px;height:300px;">
+                        <img class="fragment" src="images/architecture-1.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="0">
+                        <img class="fragment" src="images/architecture-2.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="1">
+                        <img class="fragment" src="images/architecture-3.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="2">
+                        <img class="fragment" src="images/architecture-4.png" width="247px" style="position:absolute; margin-left: auto; margin-right: auto; left: 0; right: 0;" data-fragment-index="3">
+                    </div>
+                </td>
+                <td valign="top">
+                    <ul>
+                        <li class="fragment" data-fragment-index="0">automation via ansible</li>
+                        <li class="fragment" data-fragment-index="1">functional tests via molecule</li>
+                        <li class="fragment" data-fragment-index="2">multiple python versions via tox</li>
+                        <li class="fragment" data-fragment-index="3">container as target environment</li>
+                    </ul>
+                </td>
+            </tr>   
+        </table>   
+    </section>
+
+    <section>
+        Why stop here?<br>
+        <ul>
+            <li class="fragment">add various ansible versions
+                <ul>
+                    <li>can I savely update to a newer ansible version?</li>
+                    <li>which ansible version do I need at the very least?</li>
+                </ul>
+            </li>
+            <li class="fragment">add multiple linux flavors
+                <ul>
+                    <li>verify that your role can run on RHEL 7 and RHEL 8 </li>
+                    <li>Debian 9 and 10, Ubuntu 16.04 and 18.04, ...</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+    
+    <section>
+        Well, I couldn't stop myself...
+    </section>  
+
+    <section>
+        <ul>
+            <li>ansible - latest, 2.9, 2.8</li>
+            <li class="fragment"> OS
+                <ul>
+                    <li>alpine - latest, 3.10, 3.9, 3.8</li>
+                    <li>centos - latest, 8, 7</li>
+                    <li>clearlinux - latest</li>
+                    <li>debian - latest, 10, 9, 8</li>
+                    <li>fedora - latest, 31, 30, 29, 28</li>
+                    <li>opensuse - latest, 15,</li>
+                    <li>ubuntu - latest, 20.04, 19.04, 18.04, 16.04</li>
+                </ul>
+            </li>
+            <li class="fragment"> python - 3.x, 3.8, 3.7, 3.6 </li>
+        </ul>
+    </section>  
+    
+    <section>
+        <h2>completion time</h2>
+        7 hrs 27 min 2 sec
+     </section>  
+</section>

@@ -1,0 +1,177 @@
+<section>
+    <section class="no_bg">
+        <h2>Kubernetes Ressources</h2>
+    </section>
+
+    <section class="no_bg">
+        <h2>Kubernetes Orchestration Objects</h2>
+
+        <img src="images/deployment.png" title="Deployment">
+
+        <aside class='notes'>
+            <ul>
+                <li>While Docker Swarm provides a complete orchestration stack in its service objects, Kubernetes defines several different entities that must be combined to achieve the same result. This is the other way in which kubernetes is more modular than swarm, in that its orchestration abstractions are broken down into multiple objects.</li>
+                <li>Pod: In Kubernetes a Pod is the atomic unit of scheduling. We cannot run containers directly on a Kubernetes cluster.</li>
+                <li>At the highest-level, a Pod is a ring-fenced environment to run containers. The Pod itself doesn’t actually run anything, it's just a sandbox to run containers in. Keeping it high level, we ring-fence an area of the host OS, build a network stack, create a bunch of kernel namespaces, and run one or more containers in it.</li>
+                <li>If one runs multiple containers in a Pod, they all share the same environment - things like the IPC namespace, shared memory, volumes, network stack etc. As an example, this means that all containers in the same Pod will share the same IP address (the Pod’s IP).</li>
+                <li>ReplicaSet: A ReplicaSet is a higher-level Kubernetes object that wraps around a Pod and adds features. As the names suggests, they take a Pod template and deploy a desired number of replicas of it. They also instantiate a background reconciliation loop that checks to make sure the right number of replicas are always running – desired state vs actual state. ReplicaSets can be deployed directly. But more often than not, they are deployed indirectly via even higher-level objects such as Deployments.</li>
+                <li>Deployment: Deployments provide broader desired state management to ReplicaSets. After updating the declarative desired state of replicasets in the JSON or YAML that describes a Deployment, those updates will be rolled out in a controlled fashion (ie a rolling update).</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Pods</h2>
+
+        <img src="images/podstructure.png" title="Pods" style='max-width:50%'>
+        <p><span class='keyword'>Logical host</span> supporting interacting processes</p>
+
+        <aside class='notes'>
+            <ul>
+                <li>Perhaps the most fundamental conceptual difference between Docker and Kubernetes is the notion of a pod. While Docker's fundamental scheduling unit is a container - a single process with the full stack of isolation technologies applied to it - kubernetes's atomic unit is the pod, which is meant to model a logical host supporting multiple interacting processes.</li>
+                <li>At the kernel namespace level, pods reduce some of the isolation between containers by sharing their network, IPC, and UTS namespaces. This allows all the containers within a pod to interact with each other as if they were all sitting on the same host.</li>
+                <li>As such, all the containers within a pod share a single IP address, port range, routing table, hostname, and unix sockets. This is the first example of what we meant by kubernetes prioritizing its communication model over its security model.</li>
+                <li>Resource limitations by way of control groups are imposed at the pod level; security features like capabilities management, SecComp and security modules are bundled together as securityContext objects (container context takes precedence over pod context).</li>
+                <li>All pods contain something called a pause container, which is responsible for keeping the shared namespaces of the pod open even if all other processes in the pod exit or restart.</li>
+            </ul>
+        </aside>
+
+    </section>    
+
+    <section class="no_bg">
+        <h2>Pods</h2>
+        <div class="row">
+            <div class="col-7">
+                <img src="images/pod-addr.png" title="Pods">
+            </div>
+            <div class="col-5">
+                <ul>
+                    <li>Use <code>localhost</code> for intra-pod communication</li>
+                    <li>All containers in a pod share same IP</li>
+                </ul>
+            </div>
+        </div>
+        <aside class="notes">
+            <ul>
+                <li>Since all containers in a pod share the same network namespace and they all pertain to the same (pod) IP address, containers can just communicate with each other via "localhost".</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Pod Networking</h2>
+        <img src="images/docker-vs-k8s.png" title="Pod Networking">
+        <aside class="notes">
+            <ul>
+                <li>The Docker network:</li>
+                <li>On top we have a physical network interface called "eth0". Attached to that is a Linux bridge "docker0", and attached to that is a virtual network interface "veth0". It is important to note that "docker0" and "veth0" are both on the same network, 172.5.0.0/24 in this example. On this network "docker0" is assigned the IP address 172.5.0.1 and it is the default gateway for "veth0", which is assigned the IP address 172.5.0.2.</li>
+                <li>The second container gets a new virtual network interface "veth1", connected to the same "docker0" bridge. In our case it is assigned the IP address 172.5.0.3</li>
+
+                <li>Kubernetes Network:</li>
+                <li>Docker can start a container and rather than creating a new virtual network interface for it, specify that it shares an existing interface.</li>
+                <li>The command looks like this: "docker container run --name bar ... --net container:foo ..."</li>
+                <li>The above command shares the network namespace of container "foo" with the new container "bar".</li>
+                <li>Now the second container "bar" sees "veth0" rather than getting its own "veth1" as in the previous example.</li>
+                <li>In this way multiple containers live in the same network space and can communicate with each other via `localhost`. This is similar to what we know from the situation when we run multiple processes directly on the host.</li>
+                <li>Kubernetes implements this pattern by creating a special container "pause" for each pod whose only purpose is to provide a network interface for the other containers.</li>
+                <li>The “pause” container is the heart of the pod, providing the virtual network interface that all the other containers will use to communicate with each other and the outside world.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Pod Lifecycle</h2>
+
+        <img src="images/pod-lifecycle.png" title="Pod Lifecycle">
+
+        <aside class="notes">
+            <ul>
+                <li>A pod has a lifecycle. Since a it is also an atomic unit of deployment the following is valid:</li>
+                <li>Pending: containers are still spinning up (ie being scheduled by kube, and images being downloaded if necessary).</li>
+                <li>Running: pod is bound to a node, and at least one container is still running or restarting.</li>
+                <li>Succeeded: all containers exited with exit code 0</li>
+                <li>Failed: all containers exited, at least one with a non-zero exit code.</li>
+                <li>Note the monotonous progression: unlike containers, pods don't stop and restart. They live until they die.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>ReplicaSet</h2>
+
+        <div class="row">
+            <div class="col-8">
+                <img src="images/replicaset.png" title="ReplicaSet">
+            </div>
+            <div class="col-4">
+                <ul>
+                    <li>Scaling</li>
+                    <li>Keep-alive</li>
+                </ul>
+            </div>
+        </div>
+
+        <aside class="notes">
+            <ul>
+                <li>ReplicaSets bring the concepts of desired number of replicas and self-healing to a collection of Pods. Just like in Swarm when a service task dies, a dead pod will be rescheduled by a ReplicaSet.</li>
+                <li>We define ReplicaSets with either a YAML or a JSON manifest file and feed it to the API server. This gets handed over to the ReplicaSet controller which makes sure the right number of the right Pod get instantiated. Fundamental to this is the all-powerful reconciliation loop that is constantly watching the cluster and making sure that current state and desired state match.</li>
+                <li>Even if we only need a single instance of a Pod, we should probably deploy it via a higher-level object like a ReplicaSet or Deployment. This will give the Pod self-healing capabilities and the ability to scale if we decide we need more in the future.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="no_bg">
+        <h2>Deployment</h2>
+        <div class="row">
+            <div class="col-6">
+                <img src="images/deployment.png" title="Deployment">
+            </div>
+            <div class="col-6">
+                <ul>
+                    <li>Build on top of <span class="keyword">ReplicaSets</span></li>
+                    <li>Add configurable Updates and Rollback</li>
+                    <li>Older Versions of ReplicaSets stick around for easy Rollback</li>
+                </ul>
+            </div>
+        </div>
+        <aside class="notes">
+            <ul>
+                <li>Deployments build on top of Pods and ReplicaSets by adding mature and configurable updates and rollbacks.</li>
+                <li>Like everything else, they’re objects in the Kubernetes API and we should be looking to work with them declaratively.</li>
+                <li>When we perform updates with the kubectl apply command, older versions of ReplicaSets get wound down, but they stick around making it easy for us to perform rollbacks.</li>
+            </ul>
+        </aside>
+    </section>
+    
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Kubernetes Orchestration</h2>
+        
+        <p>Work through</p>
+
+        <ul>
+            <li class='exercise' script='kube-orchestration.md'>Kubernetes Orchestration</li>
+        </ul>
+
+        <p>in the Exercises book.</p>
+        <h2 class="timer"></h2>
+
+    </section>
+
+    
+    <section class="no_bg">
+        <h2>Further Reading</h2>
+        <ul>
+            <li>Docker &amp; Kubernetes: <a href="https://www.docker.com/kubernetes">https://www.docker.com/kubernetes</a></li>
+            <li>Official Kubernetes Docs: <a href="https://kubernetes.io/docs">https://kubernetes.io/docs</a></li>
+            <li>Tutorials: <a href="http://bit.ly/2yLGn61">http://bit.ly/2yLGn61</a></li>
+            <li>Interactive Tutorials: <a href="https://bit.ly/2rdwIVZ">https://bit.ly/2rdwIVZ</a></li>
+            <li>Understanding Kubernetes Networking: <a href="http://bit.ly/2kdI1qQ">http://bit.ly/2kdI1qQ</a></li>
+            <li>Kubernetes the Hard Way: <a href="http://bit.ly/29Dq4wC">http://bit.ly/29Dq4wC</a></li>
+        </ul>
+        <aside class='notes'>
+            <ul>
+                <li>Additional resources about Kubernetes</li>
+            </ul>
+        </aside>
+    </section>
+</section>

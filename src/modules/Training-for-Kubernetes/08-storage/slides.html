@@ -1,0 +1,56 @@
+<section>
+    <section class="no_bg">
+        <h2>Volumes</h2>
+    </section>
+
+    <section class="no_bg">
+        <h2>Storage Volumes</h2>
+
+        <ul>
+            <li>Volumes: same lifecycle as pod (compare to persistent Docker volumes)</li>
+            <li>PersistentVolumes: 'immortal' volume (similar to Docker)</li>
+            <li>Storage backends exposed by <span class='keyword'>container storage interface</span> drivers</li>
+        </ul>
+
+        <aside class='notes'>
+            <ul>
+                <li>Similar to Docker containers, we often want storage for our applications that outlives the containers that isolate our processes; for this we have Kube volumes.</li>
+                <li>One critical difference between Kube and Docker's volume solutions is that Kube volumes are created alongside pods, and do not outlive those pods; once a pod is deleted, the volumes it created are also destroyed. Compare this to a Docker volume, which is created independently from a container and by default outlives any container that mounts it.</li>
+                <li>If we want a more 'Docker-like' persistent storage solution, PersistentVolumes provide volumes that are provisioned separately from pods, and persist past the lifecycle of any pods that mount them.</li>
+                <li>Kubernetes abstracts away arbitrary third-party storage solutions using the Container Storage Interface, a generic standard for orchestrator storage drivers.</li>
+            </ul>
+        </aside>
+
+    </section>
+
+    <section data-background="#00a2a1" class="green_bg">
+        <h2><img src="images/icon_task.png" class="moby_icon" alt="icon"> Exercise: Configuration, Secrets & Volumes</h2>
+        
+        <p>Work through</p>
+
+        <ul>
+            <li class='exercise' script='provisioning-kube-config.md'>Provisioning Kube Config</li>
+        </ul>
+
+        <p>in the Exercises book.</p>
+        <h2 class="timer"></h2>
+
+    </section>
+
+    <section class="no_bg">
+        <h2>Further Reading</h2>
+        <ul>
+            <li>Docker &amp; Kubernetes: <a href="https://www.docker.com/kubernetes">https://www.docker.com/kubernetes</a></li>
+            <li>Official Kubernetes Docs: <a href="https://kubernetes.io/docs">https://kubernetes.io/docs</a></li>
+            <li>Tutorials: <a href="http://bit.ly/2yLGn61">http://bit.ly/2yLGn61</a></li>
+            <li>Interactive Tutorials: <a href="https://bit.ly/2rdwIVZ">https://bit.ly/2rdwIVZ</a></li>
+            <li>Understanding Kubernetes Networking: <a href="http://bit.ly/2kdI1qQ">http://bit.ly/2kdI1qQ</a></li>
+            <li>Kubernetes the Hard Way: <a href="http://bit.ly/29Dq4wC">http://bit.ly/29Dq4wC</a></li>
+        </ul>
+        <aside class='notes'>
+            <ul>
+                <li>Additional resources about Kubernetes</li>
+            </ul>
+        </aside>
+    </section>
+</section>

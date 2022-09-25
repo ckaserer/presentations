@@ -1,0 +1,119 @@
+<section>
+    <section>
+        <h2>Functional Testing</h2>
+        <ul>
+            <li class="fragment" fragment-index="1">check whether your code is working as expected</li>
+        </ul>
+    </section>
+    <section>
+        <img src='images/molecule.png' height=100px></img>
+        <h2>Molecule</h2>
+        <aside class="notes">
+            Developed by retr0h and is now maintained as part of Ansible by Red Hat project.
+        </aside>
+    </section>
+    <section>
+        Molecule encourages consistently <br>developed roles that are<br>
+        <ul>
+            <li>well-written</li>
+            <li>easily understood</li>
+            <li>maintainable</li>
+        </ul>
+    </section>
+    <section>
+        Molecule supports testing with multiple<br>
+            <ul>
+                <li>instances</li>
+                <li>operating systems and distributions</li>
+                <li>virtualization providers</li>
+                <li>test frameworks</li>
+                <li>testing scenarios</li>
+            </ul>
+        </ul>
+        <aside class="notes">
+            Molecule provides support for testing with multiple instances, operating systems and distributions, virtualization providers, test frameworks and testing scenarios.
+            
+            Molecule .
+
+            With Molecule, any time you want to bring up a local environment and start running your role, you just run molecule converge. And since you can use Molecule with VirtualBox, Docker, or even AWS EC2 instances, you can have your role run inside any type of virtual environment you need! (Sometimes it can be hard to test certain types of applications or automation inside of a Docker container).
+            what is molecule - why do we care?
+            ways to use molecule (vagrant, docker, azure, aws,...)
+        </aside>
+    </section>
+    <section>
+        simple tests with assertions in python<br><br>
+        <div class='pre'><font color="#177317"># Example role</font>
+- <font color="sandyorange">name</font>: <font color="2D5DC4">create /tmp/hello-world.txt</font>
+  <font color="sandyorange">copy</font>:
+    <font color="sandyorange">dest</font>: <font color="2D5DC4">"/tmp/hello-world.txt"</font>
+    <font color="sandyorange">content</font>: <font color="2D5DC4">"hello world"</font>
+  <font color="sandyorange">tags</font>:
+  - <font color="2D5DC4">example</font>
+  - <font color="2D5DC4">example.hello-world</font></div>
+        <div class='pre'><font color="#177317"># Tests</font>
+<font color="2D5DC4">def</font> <font color="6D5327">test_file_exists</font>(host):
+    f = host.file(<font color="sandyorange">'/tmp/hello-world.txt'</font>)
+    <font color="C11FF2">assert</font> f.exists
+
+<font color="2D5DC4">def</font> <font color="6D5327">test_file_content</font>(host):
+    content = host.file(<font color="sandyorange">'/tmp/hello-world.txt'</font>).content
+    <font color="C11FF2">assert</font> <font color="blue">b</font><font color="sandyorange">'hello world'</font> in content</div>
+    </section>
+<!--    <section>
+        <div class='pre'>$ molecule test</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Validating schema example-role/molecule/default/molecule.yml.
+Validation completed successfully.
+--><!-- Test matrix
+    
+└── default
+    ├── lint
+    ├── dependency
+    ├── cleanup
+    ├── destroy
+    ├── syntax
+    ├── create
+    ├── prepare
+    ├── converge
+    ├── idempotence
+    ├── side_effect
+    ├── verify
+    ├── cleanup
+    └── destroy
+...</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Action: 'converge'
+    
+    PLAY [Converge] ****************************************************************
+    
+    TASK [Gathering Facts] *********************************************************
+    ok: [instance-py38-ansiblelatest-alpinelatest]
+    
+    TASK [ansible-role-example : create /tmp/hello-world.txt] **********************
+    changed: [instance-py38-ansiblelatest-alpinelatest]
+    
+    PLAY RECAP *********************************************************************
+    instance-py38-ansiblelatest-alpinelatest : ok=2    changed=1    unreachable=0 ...</div>
+    </section>
+    <section>
+        <div class='pre'>--><!-- Action: 'idempotence'
+Idempotence completed successfully.
+...
+--><!-- Action: 'verify'
+--><!-- Executing Testinfra tests found in /home/travis/build/ckaserer/...
+    ============================= test session starts ==============================
+    platform linux -- Python 3.8.0, pytest-5.3.0, py-1.8.0, pluggy-0.13.1
+    rootdir: /home/travis/build/ckaserer/ansible-role-example/molecule/default
+    plugins: testinfra-3.2.1
+collected 1 item                                                               
+    
+    tests/test_default.py .                                                  [100%]
+    
+    ============================== 1 passed in 1.23s ===============================
+Verifier completed successfully.
+...</div>
+    </section>
+-->
+</section>
